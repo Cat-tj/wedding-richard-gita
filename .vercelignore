@@ -1,0 +1,5 @@
+.claude/
+assets/hero.mp4
+assets/*.svg
+google-apps-script.js
+generate-links.html
