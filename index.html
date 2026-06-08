@@ -600,13 +600,9 @@
     .carousel-track {
       display: flex; gap: 24px;
       width: max-content;
-      animation: carousel-scroll 80s linear infinite;
       padding: 20px 0;
-    }
-    .carousel-track:hover { animation-play-state: paused; }
-    @keyframes carousel-scroll {
-      from { transform: translateX(0); }
-      to   { transform: translateX(-50%); }
+      /* transform dihandle JS, bukan CSS animation */
+      will-change: transform;
     }
 
     .carousel-item {
@@ -1562,37 +1558,71 @@
     }, 600);
   }
 
-  /* ── CAROUSEL DUPLICATE + LIGHTBOX CLICK ── */
-  window.addEventListener('load', () => {
-    const track = document.getElementById('carousel-track');
-    if (!track) return;
-    // Duplicate untuk seamless loop
-    track.innerHTML += track.innerHTML;
+  /* ── CAROUSEL — JS infinite scroll ── */
+  let _carouselPos  = 0;
+  let _carouselPaused = false;
+  let _carouselSpeed  = isLowEnd ? 0.6 : 1.0; // px per frame
+  let _halfWidth = 0;
+  let _carouselTrack = null;
 
-    // Kumpulkan semua src foto untuk lightbox navigation
-    const allImgs = Array.from(document.querySelectorAll('.carousel-item img.ci-photo'));
-    // Deduplicate (karena sudah diduplikat) — pakai hanya set pertama
-    const half = Math.floor(allImgs.length / 2);
-    const imgSrcs = allImgs.slice(0, half).map(i => i.src);
+  function initCarousel() {
+    _carouselTrack = document.getElementById('carousel-track');
+    if (!_carouselTrack) return;
 
-    // Click handler untuk setiap carousel item
-    document.querySelectorAll('.carousel-item').forEach((item, idx) => {
-      item.addEventListener('click', () => {
-        const realIdx = idx % imgSrcs.length;
-        openLightbox(realIdx, imgSrcs);
+    // Kumpulkan src original sebelum duplikat
+    const origItems = Array.from(_carouselTrack.querySelectorAll('.carousel-item'));
+    const imgSrcs = origItems
+      .map(item => { const img = item.querySelector('img.ci-photo'); return img ? img.src : null; })
+      .filter(Boolean);
+
+    // Duplikat track untuk seamless loop
+    const clone = _carouselTrack.innerHTML;
+    _carouselTrack.innerHTML = clone + clone;
+
+    // Hitung half width setelah render (tunggu layout)
+    requestAnimationFrame(() => {
+      _halfWidth = _carouselTrack.scrollWidth / 2;
+
+      // Attach click handlers ke semua items (termasuk duplikat)
+      _carouselTrack.querySelectorAll('.carousel-item').forEach((item, idx) => {
+        item.addEventListener('click', () => {
+          const realIdx = idx % imgSrcs.length;
+          openLightbox(realIdx, imgSrcs);
+        });
       });
+
+      // Hover pause
+      _carouselTrack.addEventListener('mouseenter', () => { _carouselPaused = true; });
+      _carouselTrack.addEventListener('mouseleave', () => { _carouselPaused = false; });
+
+      // Mulai animasi
+      carouselTick();
     });
-  });
+  }
+
+  function carouselTick() {
+    if (!_carouselPaused) {
+      _carouselPos += _carouselSpeed;
+      // Reset ke awal ketika sudah setengah (seamless)
+      if (_carouselPos >= _halfWidth) _carouselPos = 0;
+      _carouselTrack.style.transform = `translateX(-${_carouselPos}px)`;
+    }
+    requestAnimationFrame(carouselTick);
+  }
+
+  window.addEventListener('load', initCarousel);
 
   /* ── LIGHTBOX ── */
   let _lbSrcs = [], _lbIdx = 0;
 
   function openLightbox(idx, srcs) {
     _lbSrcs = srcs; _lbIdx = idx;
+    _carouselPaused = true; // pause carousel saat lightbox buka
+
     document.getElementById('lightbox-img').src = srcs[idx];
     document.getElementById('lightbox').classList.add('open');
     document.body.style.overflow = 'hidden';
-    // hide nav arrows if only 1 image
+
     const showNav = srcs.length > 1;
     document.getElementById('lightbox-prev').style.display = showNav ? '' : 'none';
     document.getElementById('lightbox-next').style.display = showNav ? '' : 'none';
@@ -1602,6 +1632,7 @@
     if (e && e.target !== document.getElementById('lightbox') && e.target.tagName === 'IMG') return;
     document.getElementById('lightbox').classList.remove('open');
     document.body.style.overflow = '';
+    _carouselPaused = false; // lanjut carousel
   }
 
   function lightboxNav(dir, e) {
