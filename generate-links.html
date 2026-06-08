@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Wedding Link Generator — Richard & Gita</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,600;1,400&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #120a0c; color: #faf8f3;
+      min-height: 100vh; padding: 40px 24px;
+      -webkit-font-smoothing: antialiased;
+    }
+    h1 {
+      font-family: 'Playfair Display', serif; font-size: 2rem;
+      color: #d4af37; margin-bottom: 8px; font-style: italic;
+    }
+    .sub { font-size: 13px; color: rgba(250,248,243,.45); margin-bottom: 40px; line-height: 1.7; }
+    .sub a { color: #d4af37; }
+
+    .card {
+      background: rgba(255,255,255,.05);
+      border: 1px solid rgba(212,175,55,.2);
+      border-radius: 16px; padding: 28px; margin-bottom: 24px;
+      max-width: 860px;
+    }
+    .card h2 { font-size: 11px; letter-spacing: .28em; text-transform: uppercase; color: #d4af37; margin-bottom: 16px; }
+
+    label { font-size: 11px; letter-spacing: .2em; text-transform: uppercase; color: rgba(212,175,55,.6); display: block; margin-bottom: 8px; }
+    input[type="url"], textarea {
+      width: 100%; padding: 12px 16px;
+      background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.1);
+      border-radius: 10px; color: #faf8f3; font-family: 'Inter', sans-serif; font-size: 14px;
+      outline: none; transition: border-color .2s;
+    }
+    input[type="url"]:focus, textarea:focus { border-color: #d4af37; }
+    textarea { resize: vertical; min-height: 140px; }
+
+    .hint { font-size: 12px; color: rgba(250,248,243,.35); margin-top: 8px; line-height: 1.6; }
+
+    button {
+      padding: 12px 32px;
+      background: linear-gradient(135deg, #8b1c24, #c8202f);
+      color: #faf8f3; border: none; border-radius: 10px;
+      font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 600;
+      letter-spacing: .14em; text-transform: uppercase;
+      cursor: pointer; margin-top: 20px;
+      transition: all .25s ease;
+    }
+    button:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(200,32,47,.4); }
+
+    #output { display: none; }
+    .output-header {
+      display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;
+    }
+    .output-header h2 { font-size: 11px; letter-spacing: .28em; text-transform: uppercase; color: #d4af37; }
+    .copy-all {
+      padding: 8px 20px; font-size: 12px;
+      background: rgba(212,175,55,.15); border: 1px solid rgba(212,175,55,.3);
+      border-radius: 50px; color: #d4af37; cursor: pointer; font-weight: 500;
+      transition: all .2s;
+    }
+    .copy-all:hover { background: rgba(212,175,55,.25); }
+
+    #result-area {
+      width: 100%; min-height: 200px; padding: 16px;
+      background: rgba(0,0,0,.3); border: 1px solid rgba(255,255,255,.08);
+      border-radius: 10px; color: rgba(250,248,243,.75);
+      font-family: 'Inter', sans-serif; font-size: 13px; line-height: 1.8;
+      resize: vertical;
+    }
+
+    .count-badge {
+      display: inline-block; padding: 4px 14px;
+      background: rgba(200,32,47,.2); border: 1px solid rgba(200,32,47,.3);
+      color: #ff6b7a; border-radius: 20px; font-size: 12px; margin-top: 12px;
+    }
+
+    /* individual link rows */
+    .link-row {
+      display: flex; align-items: center; gap: 12px;
+      padding: 12px 14px; border-radius: 10px;
+      background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.07);
+      margin-bottom: 10px; transition: border-color .2s;
+    }
+    .link-row:hover { border-color: rgba(212,175,55,.3); }
+    .link-name { min-width: 180px; font-size: 13px; font-weight: 500; color: #faf8f3; }
+    .link-url { flex: 1; font-size: 12px; color: rgba(212,175,55,.7); word-break: break-all; }
+    .link-copy {
+      padding: 6px 14px; font-size: 11px; letter-spacing: .1em; text-transform: uppercase;
+      background: rgba(212,175,55,.12); border: 1px solid rgba(212,175,55,.25);
+      border-radius: 20px; color: #d4af37; cursor: pointer; white-space: nowrap;
+      transition: all .2s;
+    }
+    .link-copy:hover { background: rgba(212,175,55,.25); }
+    .link-copy.copied { background: rgba(37,211,102,.15); border-color: rgba(37,211,102,.3); color: #25d366; }
+
+    .wa-row {
+      display: flex; align-items: center; gap: 10px;
+      padding: 12px 14px; border-radius: 10px;
+      background: rgba(37,211,102,.06); border: 1px solid rgba(37,211,102,.15);
+      margin-bottom: 10px;
+    }
+    .wa-row .link-name { color: #a8ffcc; }
+    .wa-row .link-url { color: rgba(168,255,204,.6); }
+    .wa-copy {
+      padding: 6px 14px; font-size: 11px;
+      background: rgba(37,211,102,.12); border: 1px solid rgba(37,211,102,.25);
+      border-radius: 20px; color: #25d366; cursor: pointer;
+      transition: all .2s;
+    }
+    .wa-copy:hover { background: rgba(37,211,102,.25); }
+
+    /* step guide */
+    .steps { max-width: 860px; margin-bottom: 32px; }
+    .step { display: flex; gap: 16px; margin-bottom: 16px; }
+    .step-num {
+      width: 28px; height: 28px; border-radius: 50%; flex-shrink: 0;
+      background: rgba(212,175,55,.15); border: 1px solid rgba(212,175,55,.3);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; font-weight: 600; color: #d4af37;
+    }
+    .step-text { font-size: 13px; color: rgba(250,248,243,.6); line-height: 1.7; padding-top: 4px; }
+    .step-text strong { color: #faf8f3; }
+
+    footer { margin-top: 48px; font-size: 12px; color: rgba(250,248,243,.25); text-align: center; }
+  </style>
+</head>
+<body>
+
+  <h1>Wedding Link Generator</h1>
+  <p class="sub">
+    Richard &amp; Gita · 26 &amp; 28 Juni 2026<br>
+    Tool ini untuk membuat link undangan personal untuk setiap tamu.
+  </p>
+
+  <!-- Steps guide -->
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-text">Masukkan <strong>URL website undangan</strong> kamu (setelah di-deploy/hosting). Untuk test lokal gunakan <code style="color:#d4af37">http://localhost:3457/</code></div>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-text">Paste daftar tamu — satu nama per baris. Bisa dari copy Excel kolom "Nama Tamu".</div>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-text">Klik <strong>Generate Links</strong>. Setiap tamu dapat link personal seperti:<br>
+        <code style="color:#d4af37">https://undangan.com/?to=Budi+Santoso</code></div>
+    </div>
+    <div class="step">
+      <div class="step-num">4</div>
+      <div class="step-text">Copy masing-masing link dan kirim via WhatsApp, atau gunakan tombol <strong>WA Siap Kirim</strong> untuk pesan WA yang sudah diformat.</div>
+    </div>
+  </div>
+
+  <!-- Input card -->
+  <div class="card">
+    <h2>Pengaturan</h2>
+    <div style="margin-bottom:20px">
+      <label>URL Website Undangan</label>
+      <input type="url" id="base-url" value="http://localhost:3457/" placeholder="https://undangan-richard-gita.netlify.app/" />
+    </div>
+    <div>
+      <label>Daftar Nama Tamu (1 nama per baris)</label>
+      <textarea id="guest-list" placeholder="Budi Santoso&#10;Siti Rahayu&#10;Ahmad Fauzi&#10;Keluarga Bapak Hendra&#10;..."></textarea>
+      <p class="hint">💡 Tip: Copy kolom nama dari Excel kamu, langsung paste di sini. Nama akan di-encode otomatis untuk URL.</p>
+    </div>
+    <button onclick="generate()">✦ Generate Links</button>
+  </div>
+
+  <!-- Output -->
+  <div class="card" id="output">
+    <div class="output-header">
+      <h2>Link Undangan Personal</h2>
+      <button class="copy-all" onclick="copyAll()">📋 Copy Semua</button>
+    </div>
+    <div id="links-container"></div>
+    <div id="count-info"></div>
+  </div>
+
+  <footer>Richard &amp; Gita Wedding · Generated with ♥</footer>
+
+<script>
+  function generate() {
+    const baseUrl = document.getElementById('base-url').value.trim().replace(/\?.*$/, '');
+    const raw = document.getElementById('guest-list').value.trim();
+    if (!raw) { alert('Masukkan minimal 1 nama tamu!'); return; }
+
+    const names = raw.split('\n').map(n => n.trim()).filter(Boolean);
+    const container = document.getElementById('links-container');
+    container.innerHTML = '';
+
+    names.forEach(name => {
+      const encoded = encodeURIComponent(name);
+      const url = `${baseUrl}?to=${encoded}`;
+      const waMsg = encodeURIComponent(
+        `Kepada Yth. ${name} 🌸\n\nDengan penuh kebahagiaan, kami mengundang kehadiran Bapak/Ibu/Saudara/i pada pernikahan kami:\n\n` +
+        `✨ Richard Chandra Tjiang & Gita Andriana ✨\n` +
+        `📅 Akad Nikah: Jumat, 26 Juni 2026\n📅 Resepsi: Minggu, 28 Juni 2026\n📍 Balikpapan, Indonesia\n\n` +
+        `Silakan buka undangan digital Anda di:\n${url}\n\nTerima kasih atas kehadiran dan doa restu Anda 🙏`
+      );
+      const waUrl = `https://wa.me/?text=${waMsg}`;
+
+      const row = document.createElement('div');
+      row.innerHTML = `
+        <div class="link-row">
+          <span class="link-name">${escHtml(name)}</span>
+          <span class="link-url">${escHtml(url)}</span>
+          <button class="link-copy" onclick="copyLink(this, '${escAttr(url)}')">Copy Link</button>
+        </div>
+        <div class="wa-row">
+          <span class="link-name" style="font-size:12px;min-width:180px;color:rgba(168,255,204,.7)">💬 WA siap kirim</span>
+          <span class="link-url" style="font-size:11px;">${escHtml(name)} — pesan WhatsApp sudah diformat</span>
+          <a href="${waUrl}" target="_blank" class="wa-copy">Kirim WA</a>
+        </div>
+      `;
+      container.appendChild(row);
+    });
+
+    document.getElementById('count-info').innerHTML = `<span class="count-badge">Total: ${names.length} tamu undangan</span>`;
+    document.getElementById('output').style.display = 'block';
+    document.getElementById('output').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  function copyLink(btn, url) {
+    navigator.clipboard.writeText(url).then(() => {
+      btn.textContent = '✓ Tersalin!';
+      btn.classList.add('copied');
+      setTimeout(() => { btn.textContent = 'Copy Link'; btn.classList.remove('copied'); }, 2000);
+    });
+  }
+
+  function copyAll() {
+    const baseUrl = document.getElementById('base-url').value.trim().replace(/\?.*$/, '');
+    const names = document.getElementById('guest-list').value.trim().split('\n').map(n => n.trim()).filter(Boolean);
+    const lines = names.map(n => `${n}\t${baseUrl}?to=${encodeURIComponent(n)}`).join('\n');
+    navigator.clipboard.writeText(lines).then(() => {
+      const btn = document.querySelector('.copy-all');
+      btn.textContent = '✓ Semua tersalin!';
+      setTimeout(() => btn.textContent = '📋 Copy Semua', 2000);
+    });
+  }
+
+  function escHtml(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+  function escAttr(s) { return s.replace(/'/g, "\\'"); }
+</script>
+
+</body>
+</html>

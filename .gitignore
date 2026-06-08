@@ -1,0 +1,9 @@
+# Video asli (99MB, pakai yang hero-web.mp4 saja)
+assets/hero.mp4
+
+# SVG lama tidak dipakai
+assets/*.svg
+
+# macOS
+.DS_Store
+.claude/
