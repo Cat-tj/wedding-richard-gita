@@ -7,3 +7,4 @@ assets/*.svg
 # macOS
 .DS_Store
 .claude/
+.vercel
