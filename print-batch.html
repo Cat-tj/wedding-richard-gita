@@ -11,7 +11,6 @@
   body{ font-family:'Inter',sans-serif; background:#1d1012; color:var(--cream);
     display:flex; flex-direction:column; align-items:center; padding:30px 16px; -webkit-font-smoothing:antialiased; }
 
-  /* panel kontrol (layar saja) */
   .controls{ width:100%; max-width:760px; background:rgba(255,255,255,.05);
     border:1px solid rgba(212,175,55,.25); border-radius:16px; padding:24px; margin-bottom:30px; }
   .controls h1{ font-family:'Playfair Display',serif; font-style:italic; color:var(--gold); font-size:1.5rem; margin-bottom:4px; }
@@ -33,11 +32,47 @@
   .count{ font-size:13px; color:var(--gold); }
   .hint{ font-size:12px; color:rgba(250,243,230,.4); margin-top:6px; line-height:1.6; }
 
-  /* ===== KARTU A5 (sama dgn print-invitation) ===== */
   .page{ margin:0 auto 26px; }
-  .card{ width:148mm; height:210mm; position:relative; overflow:hidden; display:flex;
+  .sheet{ width:148mm; height:210mm; position:relative; overflow:hidden;
     box-shadow:0 24px 60px rgba(0,0,0,.5);
     background:radial-gradient(130% 90% at 70% -10%, #b3122b 0%, #8e0f22 55%, #6f0a18 100%); }
+  .frame::before{ content:''; position:absolute; inset:5mm; border:1px solid rgba(212,175,55,.55); pointer-events:none; z-index:3; }
+  .corner{position:absolute; width:9mm; height:9mm; border:1.5px solid var(--gold); pointer-events:none; z-index:3;}
+  .corner.tl{top:6.4mm;left:6.4mm;border-right:0;border-bottom:0;}
+  .corner.tr{top:6.4mm;right:6.4mm;border-left:0;border-bottom:0;}
+  .corner.bl{bottom:6.4mm;left:6.4mm;border-right:0;border-top:0;}
+  .corner.br{bottom:6.4mm;right:6.4mm;border-left:0;border-top:0;}
+
+  .crest{ display:flex; align-items:center; justify-content:center; gap:1mm; }
+  .dragon{ height:18mm; width:auto; flex:0 0 auto; filter:drop-shadow(0 .4mm .8mm rgba(0,0,0,.35)); }
+  .dragon.right{ transform:scaleX(-1); }
+  .xi-badge{ width:12mm; height:12mm; border-radius:50%; flex:0 0 12mm; display:flex; align-items:center; justify-content:center;
+    font-family:'Noto Serif SC',serif; font-weight:700; font-size:14pt; color:var(--red);
+    background:radial-gradient(circle at 34% 30%,#fff0a0 0%,#e5c22a 32%,#b8860b 70%,#7a5a00 100%);
+    border:1px solid rgba(122,90,0,.6); box-shadow:0 2mm 5mm rgba(0,0,0,.35); }
+
+  /* COVER */
+  .cover{ display:flex; flex-direction:column; align-items:center; text-align:center; color:var(--cream); }
+  .cover-photo{ width:100%; height:74mm; position:relative; flex:0 0 74mm; }
+  .cover-photo img{ width:100%; height:100%; object-fit:cover; object-position:center 42%; display:block; }
+  .cover-photo::after{ content:''; position:absolute; inset:0;
+    background:linear-gradient(to bottom, rgba(110,10,24,.15) 0%, transparent 30%, transparent 60%, rgba(110,10,24,.95) 100%); }
+  .cover-body{ flex:1; width:100%; padding:0 15mm 9mm; display:flex; flex-direction:column; align-items:center; margin-top:-9mm; position:relative; z-index:2; }
+  .cover .crest{ margin-bottom:2.5mm; }
+  .cover-label{ font-size:8pt; letter-spacing:.42em; text-transform:uppercase; color:var(--gold); margin-bottom:3.5mm; }
+  .cover-quote{ font-family:'Playfair Display',serif; font-style:italic; font-size:9pt; line-height:1.55; color:rgba(251,244,230,.78); max-width:108mm; margin-bottom:5mm; }
+  .cover-names{ font-family:'Playfair Display',serif; font-weight:600; font-size:34pt; line-height:1; color:#fff; }
+  .cover-names .amp{ display:block; font-style:italic; font-weight:400; font-size:18pt; color:var(--gold); margin:1mm 0; }
+  .cover-han{ font-family:'Noto Serif SC',serif; font-size:11pt; color:var(--gold); letter-spacing:.2em; margin-top:2.5mm; }
+  .cover-date{ font-size:8.5pt; letter-spacing:.18em; text-transform:uppercase; color:var(--cream); margin-top:3mm; }
+  .cover-rule{ width:40mm; height:1px; background:linear-gradient(90deg,transparent,var(--gold),transparent); margin:4mm 0; }
+  .cover-invite{ font-size:8.4pt; line-height:1.6; color:rgba(251,244,230,.88); max-width:110mm; }
+  .cover-to{ margin-top:auto; padding-top:6mm; }
+  .cover-to .yth{ font-size:7pt; letter-spacing:.24em; text-transform:uppercase; color:var(--gold); }
+  .cover-to .nm{ font-family:'Playfair Display',serif; font-size:13pt; color:#fff; margin-top:1mm; }
+
+  /* BELAKANG — 2 kolom */
+  .card{ display:flex; height:100%; }
   .photo-col{ flex:0 0 58mm; position:relative; overflow:hidden; background:#6f0a18; }
   .photo-col::before{ content:''; position:absolute; inset:0; z-index:0;
     background:url('assets/print-couple.jpg') center/cover; filter:blur(7px) brightness(.5) saturate(1.1); transform:scale(1.15); }
@@ -46,18 +81,9 @@
     box-shadow: inset -2px 0 0 rgba(212,175,55,.9);
     background:linear-gradient(90deg, rgba(0,0,0,.18), transparent 16%, transparent 86%, rgba(110,10,24,.35)); }
   .content-col{ flex:1; position:relative; text-align:center; padding:11mm 9mm 14mm; display:flex; flex-direction:column; align-items:center; }
-  .content-col::before{ content:''; position:absolute; inset:5mm; border:1px solid rgba(212,175,55,.55); pointer-events:none; }
-  .corner{position:absolute; width:9mm; height:9mm; border:1.5px solid var(--gold); pointer-events:none;}
-  .corner.tr{top:6.4mm;right:6.4mm;border-left:0;border-bottom:0;}
-  .corner.br{bottom:6.4mm;right:6.4mm;border-left:0;border-top:0;}
+  .content-col .frame-in{ position:absolute; inset:5mm; border:1px solid rgba(212,175,55,.55); pointer-events:none; }
   .stack{position:relative; z-index:2; display:flex; flex-direction:column; align-items:center; height:100%; width:100%;}
-  .crest{ display:flex; align-items:center; justify-content:center; gap:1mm; margin-bottom:3mm; }
-  .dragon{ height:20mm; width:auto; flex:0 0 auto; filter:drop-shadow(0 .4mm .8mm rgba(0,0,0,.35)); }
-  .dragon.right{ transform:scaleX(-1); }
-  .xi-badge{ width:12mm; height:12mm; border-radius:50%; flex:0 0 12mm; display:flex; align-items:center; justify-content:center;
-    font-family:'Noto Serif SC',serif; font-weight:700; font-size:14pt; color:var(--red);
-    background:radial-gradient(circle at 34% 30%,#fff0a0 0%,#e5c22a 32%,#b8860b 70%,#7a5a00 100%);
-    border:1px solid rgba(122,90,0,.6); box-shadow:0 2mm 5mm rgba(0,0,0,.35); }
+  .content-col .crest{ margin-bottom:3mm; }
   .invite-label{font-size:7pt; letter-spacing:.36em; text-transform:uppercase; color:rgba(251,244,230,.72); margin-bottom:2mm;}
   .names{font-family:'Playfair Display',serif; font-weight:600; font-size:23pt; line-height:1.02; color:#fff;}
   .names .amp{display:block; font-style:italic; font-weight:400; font-size:14pt; color:var(--gold); margin:.6mm 0;}
@@ -81,14 +107,13 @@
   .qr img,.qr canvas{width:100%!important; height:100%!important; display:block;}
   .qr-cap{font-size:6pt; letter-spacing:.16em; text-transform:uppercase; color:var(--gold);}
 
-  /* PRINT */
   @page{ size:148mm 210mm; margin:0; }
   @media print{
     html,body{ margin:0; padding:0; background:#6f0a18; display:block; }
     .controls{ display:none; }
     .page{ margin:0; page-break-after:always; }
     .page:last-child{ page-break-after:auto; }
-    .card{ box-shadow:none; }
+    .sheet{ box-shadow:none; }
     *{ -webkit-print-color-adjust:exact !important; print-color-adjust:exact !important; }
   }
 </style>
@@ -97,7 +122,7 @@
 
   <div class="controls">
     <h1>Batch Undangan Cetak</h1>
-    <p class="sub">Buat kartu undangan A5 untuk banyak tamu sekaligus. Klik <b>Generate</b>, lalu <b>Cetak / Simpan PDF</b> → 1 PDF berisi semua kartu (1 tamu per halaman).</p>
+    <p class="sub">Tiap tamu = 2 halaman (depan personal + belakang detail), siap cetak <b>bolak-balik</b>. Klik Generate lalu Cetak/Simpan PDF.</p>
 
     <label>URL Website (untuk QR personal)</label>
     <input type="url" id="base-url" value="https://wedding-richard-gita.vercel.app/" />
@@ -118,7 +143,7 @@
       <button class="btn gold" id="print-btn" onclick="window.print()" disabled>🖨 Cetak / Simpan PDF</button>
       <span class="count" id="count"></span>
     </div>
-    <p class="hint">Saat Save as PDF: <b>Paper size = A5</b>, <b>Margins = None</b>, <b>Scale = 100</b>, centang <b>Background graphics</b>. Tiap tamu otomatis 1 halaman.</p>
+    <p class="hint">Save as PDF: <b>Paper A5</b>, <b>Margins None</b>, <b>Scale 100</b>, centang <b>Background graphics</b>. Cetak bolak-balik: <b>Print on both sides / Flip on long edge</b>. Urutan halaman: depan-belakang tiap tamu.</p>
   </div>
 
   <div id="pages"></div>
@@ -128,30 +153,44 @@
   function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
   function readLines(id){ return document.getElementById(id).value.trim().split('\n').map(s=>s.trim()).filter(Boolean); }
 
-  function greeting(name, group){
-    if (group) {
-      return `<span class="yth">Kepada Yth.</span><b>${esc(name)}</b>kami mengundang Bapak/Ibu/Saudara/i sekalian untuk hadir &amp; memberikan doa restu.`;
-    }
-    return `<span class="yth">Kepada Yth. Bapak/Ibu/Saudara/i</span><b>${esc(name)}</b>untuk hadir &amp; memberikan doa restu pada pernikahan kami.`;
+  function coverPage(name, group){
+    const nm = group
+      ? `<div class="nm">${esc(name)}</div>`
+      : `<div class="yth" style="margin-bottom:1mm">Bapak / Ibu / Saudara / i</div><div class="nm">${esc(name)}</div>`;
+    const invite = group
+      ? `Dengan memohon rahmat dan berkat Tuhan Yang Maha Esa, kami mengundang segenap ${esc(name)} untuk berkenan hadir dan memberikan doa restu pada pernikahan putra-putri kami.`
+      : `Dengan memohon rahmat dan berkat Tuhan Yang Maha Esa, kami bermaksud menyelenggarakan pernikahan putra-putri kami. Suatu kehormatan dan kebahagiaan bagi kami apabila Bapak/Ibu/Saudara/i berkenan hadir untuk memberikan doa restu.`;
+    return `<div class="page"><div class="sheet cover frame">
+      <span class="corner tl"></span><span class="corner tr"></span><span class="corner bl"></span><span class="corner br"></span>
+      <div class="cover-photo"><img src="assets/print-couple.jpg" alt=""></div>
+      <div class="cover-body">
+        <div class="crest"><img class="dragon left" src="assets/dragon.png" alt=""><div class="xi-badge">囍</div><img class="dragon right" src="assets/dragon.png" alt=""></div>
+        <p class="cover-label">Undangan Pernikahan</p>
+        <p class="cover-quote">“Dua insan yang dipersatukan oleh cinta dan restu,<br>melangkah bersama menuju satu kehidupan yang utuh.”</p>
+        <div class="cover-names">Richard<span class="amp">&amp;</span>Gita</div>
+        <div class="cover-han">张文兴 · 甘美花</div>
+        <p class="cover-date">26 &amp; 28 Juni 2026 · Samarinda &amp; Balikpapan</p>
+        <div class="cover-rule"></div>
+        <p class="cover-invite">${invite}</p>
+        <div class="cover-to"><div class="yth">Kepada Yth.</div>${nm}</div>
+      </div>
+    </div></div>`;
   }
 
-  function cardHTML(name, group, baseUrl){
-    const url = baseUrl.replace(/\?.*$/, '') + '?to=' + encodeURIComponent(name);
-    return `<div class="page"><div class="card">
-      <div class="photo-col"><img src="assets/print-couple.jpg" alt="" /></div>
+  function backPage(name){
+    const url = document.getElementById('base-url').value.trim().replace(/\?.*$/, '') + '?to=' + encodeURIComponent(name);
+    return `<div class="page"><div class="sheet"><div class="card">
+      <div class="photo-col"><img src="assets/print-couple.jpg" alt=""></div>
       <div class="content-col">
+        <div class="frame-in"></div>
         <span class="corner tr"></span><span class="corner br"></span>
         <div class="stack">
-          <div class="crest">
-            <img class="dragon left" src="assets/dragon.png" alt="" />
-            <div class="xi-badge">囍</div>
-            <img class="dragon right" src="assets/dragon.png" alt="" />
-          </div>
+          <div class="crest"><img class="dragon left" src="assets/dragon.png" alt=""><div class="xi-badge">囍</div><img class="dragon right" src="assets/dragon.png" alt=""></div>
           <p class="invite-label">The Wedding Of</p>
           <div class="names">Richard<span class="amp">&amp;</span>Gita</div>
           <div class="han">张文兴 · 甘美花</div>
           <div class="rule"></div>
-          <p class="to">${greeting(name, group)}</p>
+          <p class="to"><span class="yth">Kepada Yth.</span><b>${esc(name)}</b></p>
           <div class="parents">
             <div class="p-block"><span class="role">Mempelai Pria</span>
               Putra dari <strong>Bp. Jack Chandra Wijaya</strong> <span class="han-sm">张振强</span> &amp; <strong>Ibu Kasmah</strong></div>
@@ -168,26 +207,22 @@
                 <span class="e-strong">Nusantara Grand Ballroom</span>
                 Hotel MaxOne, Jl. MT Haryono No.2, Balikpapan</div></div>
           </div>
-          <div class="footer">
-            <div class="qr" data-url="${esc(url)}"></div>
-            <span class="qr-cap">Scan · Undangan Digital</span>
-          </div>
+          <div class="footer"><div class="qr" data-url="${esc(url)}"></div><span class="qr-cap">Scan · Undangan Digital</span></div>
         </div>
       </div>
-    </div></div>`;
+    </div></div></div>`;
   }
 
   function generate(){
-    const baseUrl = document.getElementById('base-url').value.trim();
     const entries = [
       ...readLines('guest-list').map(n=>({name:n,group:false})),
       ...readLines('group-list').map(n=>({name:n,group:true})),
     ];
     if(!entries.length){ alert('Masukkan minimal 1 nama tamu atau grup!'); return; }
 
-    document.getElementById('pages').innerHTML = entries.map(e=>cardHTML(e.name, e.group, baseUrl)).join('');
+    document.getElementById('pages').innerHTML =
+      entries.map(e => coverPage(e.name, e.group) + backPage(e.name)).join('');
 
-    // buat QR tiap kartu
     document.querySelectorAll('.qr').forEach(el=>{
       const u = el.dataset.url;
       try{ new QRCode(el,{text:u,width:200,height:200,colorDark:'#1d1012',colorLight:'#fff',correctLevel:QRCode.CorrectLevel.M}); }
@@ -195,7 +230,7 @@
     });
 
     const pc = readLines('guest-list').length, gc = readLines('group-list').length;
-    document.getElementById('count').textContent = entries.length + ' kartu' + (gc? ` (${pc} personal · ${gc} grup)`:'');
+    document.getElementById('count').textContent = entries.length + ' tamu · ' + (entries.length*2) + ' halaman' + (gc? ` (${pc} personal · ${gc} grup)`:'');
     document.getElementById('print-btn').disabled = false;
     document.getElementById('pages').scrollIntoView({behavior:'smooth'});
   }

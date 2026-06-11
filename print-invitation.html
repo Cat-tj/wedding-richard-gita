@@ -6,100 +6,92 @@
 <title>Undangan Cetak — Richard &amp; Gita</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,500;0,600;1,400;1,500&family=Noto+Serif+SC:wght@500;700&display=swap" rel="stylesheet" />
 <style>
-  :root{
-    --red:#9e0f22; --red2:#c8202f; --gold:#d4af37; --cream:#fbf4e6;
-  }
+  :root{ --red:#9e0f22; --red2:#c8202f; --gold:#d4af37; --cream:#fbf4e6; }
   *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
-  body{
-    font-family:'Inter',sans-serif; background:#1d1012; color:var(--cream);
-    display:flex; flex-direction:column; align-items:center;
-    padding:30px 16px; -webkit-font-smoothing:antialiased;
-  }
+  body{ font-family:'Inter',sans-serif; background:#1d1012; color:var(--cream);
+    display:flex; flex-direction:column; align-items:center; padding:30px 16px; -webkit-font-smoothing:antialiased; }
 
   /* toolbar (layar saja) */
-  .toolbar{
-    display:flex; gap:12px; align-items:center; flex-wrap:wrap; justify-content:center;
-    margin-bottom:26px; color:#faf3e6;
-  }
-  .toolbar p{font-size:13px;color:rgba(250,243,230,.55);}
-  .btn{
-    padding:11px 26px; border:none; border-radius:50px; cursor:pointer;
-    background:linear-gradient(135deg,#8b1c24,var(--red2)); color:#fff;
-    font:600 13px 'Inter',sans-serif; letter-spacing:.14em; text-transform:uppercase;
-    box-shadow:0 8px 26px rgba(200,32,47,.4); transition:transform .2s,box-shadow .2s;
-  }
+  .toolbar{ display:flex; gap:12px; align-items:center; flex-wrap:wrap; justify-content:center; margin-bottom:26px; color:#faf3e6; max-width:760px; text-align:center; }
+  .toolbar p{font-size:13px;color:rgba(250,243,230,.55); line-height:1.6;}
+  .btn{ padding:11px 26px; border:none; border-radius:50px; cursor:pointer;
+    background:linear-gradient(135deg,#8b1c24,var(--red2)); color:#fff; font:600 13px 'Inter',sans-serif;
+    letter-spacing:.14em; text-transform:uppercase; box-shadow:0 8px 26px rgba(200,32,47,.4); transition:.2s; }
   .btn:hover{transform:translateY(-2px); box-shadow:0 14px 36px rgba(200,32,47,.55);}
 
-  /* kartu A5 — 2 kolom */
-  .card{
-    width:148mm; height:210mm; position:relative; overflow:hidden;
-    display:flex; box-shadow:0 30px 80px rgba(0,0,0,.55);
-    background:radial-gradient(130% 90% at 70% -10%, #b3122b 0%, #8e0f22 55%, #6f0a18 100%);
-  }
-  /* kolom foto kiri */
-  .photo-col{ flex:0 0 58mm; position:relative; overflow:hidden; background:#6f0a18; }
-  /* latar: foto sama, di-blur + digelapkan untuk "memperpanjang" frame */
-  .photo-col::before{
-    content:''; position:absolute; inset:0; z-index:0;
-    background:url('assets/print-couple.jpg') center/cover;
-    filter:blur(7px) brightness(.5) saturate(1.1); transform:scale(1.15);
-  }
-  /* foto utuh (wajah terlihat penuh) */
-  .photo-col img{ position:relative; z-index:1; width:100%; height:100%; object-fit:contain; display:block; }
-  /* garis emas pembatas + vignette tepi */
-  .photo-col::after{
-    content:''; position:absolute; inset:0; z-index:2; pointer-events:none;
-    box-shadow: inset -2px 0 0 rgba(212,175,55,.9);
-    background:linear-gradient(90deg, rgba(0,0,0,.18), transparent 16%, transparent 86%, rgba(110,10,24,.35));
-  }
+  .page{ margin:0 auto 26px; }
 
-  /* kolom konten kanan */
-  .content-col{
-    flex:1; position:relative; text-align:center;
-    padding:11mm 9mm 14mm; display:flex; flex-direction:column; align-items:center;
-  }
-  /* bingkai emas di kolom konten */
-  .content-col::before{ content:''; position:absolute; inset:5mm; border:1px solid rgba(212,175,55,.55); pointer-events:none; }
-  .corner{position:absolute; width:9mm; height:9mm; border:1.5px solid var(--gold); pointer-events:none;}
+  /* ===== dasar halaman A5 ===== */
+  .sheet{ width:148mm; height:210mm; position:relative; overflow:hidden;
+    box-shadow:0 24px 60px rgba(0,0,0,.5);
+    background:radial-gradient(130% 90% at 70% -10%, #b3122b 0%, #8e0f22 55%, #6f0a18 100%); }
+
+  /* bingkai emas + sudut (dipakai cover & konten) */
+  .frame::before{ content:''; position:absolute; inset:5mm; border:1px solid rgba(212,175,55,.55); pointer-events:none; z-index:3; }
+  .corner{position:absolute; width:9mm; height:9mm; border:1.5px solid var(--gold); pointer-events:none; z-index:3;}
+  .corner.tl{top:6.4mm;left:6.4mm;border-right:0;border-bottom:0;}
   .corner.tr{top:6.4mm;right:6.4mm;border-left:0;border-bottom:0;}
+  .corner.bl{bottom:6.4mm;left:6.4mm;border-right:0;border-top:0;}
   .corner.br{bottom:6.4mm;right:6.4mm;border-left:0;border-top:0;}
 
-  .stack{position:relative; z-index:2; display:flex; flex-direction:column; align-items:center; height:100%; width:100%;}
-
-  .crest{ display:flex; align-items:center; justify-content:center; gap:1mm; margin-bottom:3mm; }
-  .dragon{
-    height:20mm; width:auto; flex:0 0 auto;
-    filter:drop-shadow(0 .4mm .8mm rgba(0,0,0,.35));
-  }
+  /* crest naga + 囍 */
+  .crest{ display:flex; align-items:center; justify-content:center; gap:1mm; }
+  .dragon{ height:18mm; width:auto; flex:0 0 auto; filter:drop-shadow(0 .4mm .8mm rgba(0,0,0,.35)); }
   .dragon.right{ transform:scaleX(-1); }
-  .xi-badge{
-    width:12mm; height:12mm; border-radius:50%; flex:0 0 12mm;
-    display:flex; align-items:center; justify-content:center;
+  .xi-badge{ width:12mm; height:12mm; border-radius:50%; flex:0 0 12mm; display:flex; align-items:center; justify-content:center;
     font-family:'Noto Serif SC',serif; font-weight:700; font-size:14pt; color:var(--red);
     background:radial-gradient(circle at 34% 30%,#fff0a0 0%,#e5c22a 32%,#b8860b 70%,#7a5a00 100%);
-    border:1px solid rgba(122,90,0,.6); box-shadow:0 2mm 5mm rgba(0,0,0,.35);
-  }
+    border:1px solid rgba(122,90,0,.6); box-shadow:0 2mm 5mm rgba(0,0,0,.35); }
+
+  /* ============ COVER (depan) ============ */
+  .cover{ display:flex; flex-direction:column; align-items:center; text-align:center; color:var(--cream); }
+  .cover-photo{ width:100%; height:74mm; position:relative; flex:0 0 74mm; }
+  .cover-photo img{ width:100%; height:100%; object-fit:cover; object-position:center 42%; display:block; }
+  .cover-photo::after{ content:''; position:absolute; inset:0;
+    background:linear-gradient(to bottom, rgba(110,10,24,.15) 0%, transparent 30%, transparent 60%, rgba(110,10,24,.95) 100%); }
+  .cover-body{ flex:1; width:100%; padding:0 15mm 9mm; display:flex; flex-direction:column; align-items:center; margin-top:-9mm; position:relative; z-index:2; }
+  .cover .crest{ margin-bottom:2.5mm; }
+  .cover-label{ font-size:8pt; letter-spacing:.42em; text-transform:uppercase; color:var(--gold); margin-bottom:3.5mm; }
+  .cover-quote{ font-family:'Playfair Display',serif; font-style:italic; font-size:9pt; line-height:1.55; color:rgba(251,244,230,.78); max-width:108mm; margin-bottom:5mm; }
+  .cover-names{ font-family:'Playfair Display',serif; font-weight:600; font-size:34pt; line-height:1; color:#fff; }
+  .cover-names .amp{ display:block; font-style:italic; font-weight:400; font-size:18pt; color:var(--gold); margin:1mm 0; }
+  .cover-han{ font-family:'Noto Serif SC',serif; font-size:11pt; color:var(--gold); letter-spacing:.2em; margin-top:2.5mm; }
+  .cover-date{ font-size:8.5pt; letter-spacing:.18em; text-transform:uppercase; color:var(--cream); margin-top:3mm; }
+  .cover-rule{ width:40mm; height:1px; background:linear-gradient(90deg,transparent,var(--gold),transparent); margin:4mm 0; }
+  .cover-invite{ font-size:8.4pt; line-height:1.6; color:rgba(251,244,230,.88); max-width:110mm; }
+  .cover-to{ margin-top:auto; padding-top:6mm; }
+  .cover-to .yth{ font-size:7pt; letter-spacing:.24em; text-transform:uppercase; color:var(--gold); }
+  .cover-to .nm{ font-family:'Playfair Display',serif; font-size:12pt; color:#fff; margin-top:1mm; }
+
+  /* ============ KONTEN (belakang) — 2 kolom ============ */
+  .card{ display:flex; height:100%; }
+  .photo-col{ flex:0 0 58mm; position:relative; overflow:hidden; background:#6f0a18; }
+  .photo-col::before{ content:''; position:absolute; inset:0; z-index:0;
+    background:url('assets/print-couple.jpg') center/cover; filter:blur(7px) brightness(.5) saturate(1.1); transform:scale(1.15); }
+  .photo-col img{ position:relative; z-index:1; width:100%; height:100%; object-fit:contain; display:block; }
+  .photo-col::after{ content:''; position:absolute; inset:0; z-index:2; pointer-events:none;
+    box-shadow: inset -2px 0 0 rgba(212,175,55,.9);
+    background:linear-gradient(90deg, rgba(0,0,0,.18), transparent 16%, transparent 86%, rgba(110,10,24,.35)); }
+  .content-col{ flex:1; position:relative; text-align:center; padding:11mm 9mm 14mm; display:flex; flex-direction:column; align-items:center; }
+  .content-col .frame-in{ content:''; position:absolute; inset:5mm; border:1px solid rgba(212,175,55,.55); pointer-events:none; }
+  .stack{position:relative; z-index:2; display:flex; flex-direction:column; align-items:center; height:100%; width:100%;}
+  .content-col .crest{ margin-bottom:3mm; }
   .invite-label{font-size:7pt; letter-spacing:.36em; text-transform:uppercase; color:rgba(251,244,230,.72); margin-bottom:2mm;}
   .names{font-family:'Playfair Display',serif; font-weight:600; font-size:23pt; line-height:1.02; color:#fff;}
   .names .amp{display:block; font-style:italic; font-weight:400; font-size:14pt; color:var(--gold); margin:.6mm 0;}
   .han{font-family:'Noto Serif SC',serif; font-size:9.5pt; color:var(--gold); letter-spacing:.16em; margin-top:2mm;}
-
   .rule{width:34mm; height:1px; background:linear-gradient(90deg,transparent,var(--gold),transparent); margin:4mm 0;}
-
   .intro{font-size:7.4pt; color:rgba(251,244,230,.82); line-height:1.5; margin-bottom:4mm;}
-
   .parents{font-size:7.4pt; line-height:1.4; color:rgba(251,244,230,.9); margin-bottom:1mm;}
   .parents .p-block{margin-bottom:2.5mm;}
   .parents .role{font-size:6.2pt; letter-spacing:.24em; text-transform:uppercase; color:var(--gold); display:block; margin-bottom:.4mm;}
   .parents strong{color:#fff; font-weight:600; font-size:7.8pt;}
   .han-sm{font-family:'Noto Serif SC',serif; color:var(--gold); font-size:7.6pt; white-space:nowrap;}
-
   .events{width:100%; display:flex; flex-direction:column; gap:3mm; margin:3mm 0;}
   .event{ border:1px solid rgba(212,175,55,.4); border-radius:2.5mm; padding:2.8mm 3mm; background:rgba(0,0,0,.16); }
   .event h3{font-family:'Playfair Display',serif; font-weight:600; font-size:10pt; color:var(--gold); margin-bottom:1mm;}
   .event .e-line{font-size:7.2pt; line-height:1.45; color:rgba(251,244,230,.92);}
   .event .e-strong{color:#fff; font-weight:600; display:block; font-size:7.6pt; margin-top:.6mm;}
-
   .footer{margin-top:auto; display:flex; flex-direction:column; align-items:center; gap:1.6mm; padding-top:3mm;}
   #qr{width:21mm; height:21mm; background:#fff; padding:1.3mm; border-radius:2mm;}
   #qr img,#qr canvas{width:100%!important; height:100%!important; display:block;}
@@ -108,9 +100,11 @@
   /* PRINT */
   @page{ size:148mm 210mm; margin:0; }
   @media print{
-    html,body{ margin:0; padding:0; width:148mm; height:210mm; background:#6f0a18; }
+    html,body{ margin:0; padding:0; background:#6f0a18; display:block; }
     .toolbar{ display:none; }
-    .card{ box-shadow:none; margin:0; width:148mm; height:210mm; }
+    .page{ margin:0; page-break-after:always; }
+    .page:last-child{ page-break-after:auto; }
+    .sheet{ box-shadow:none; }
     *{ -webkit-print-color-adjust:exact !important; print-color-adjust:exact !important; }
   }
 </style>
@@ -119,71 +113,92 @@
 
   <div class="toolbar">
     <button class="btn" onclick="window.print()">🖨 Cetak / Simpan PDF</button>
-    <p>Agar tanpa border: di dialog cetak set <b>Paper size = A5</b>, <b>Margins = None</b>, <b>Scale = 100</b> (jangan "Fit"), dan centang <b>Background graphics</b>.</p>
+    <p>2 halaman (depan &amp; belakang). Untuk cetak bolak-balik: aktifkan <b>Print on both sides</b> / <b>Flip on long edge</b>.<br>
+       Set <b>Paper A5</b>, <b>Margins None</b>, <b>Scale 100</b>, centang <b>Background graphics</b>.</p>
   </div>
 
-  <div class="card">
-    <!-- Foto kiri -->
-    <div class="photo-col"><img src="assets/print-couple.jpg" alt="Richard &amp; Gita" /></div>
+  <!-- ===================== HALAMAN DEPAN (COVER) ===================== -->
+  <div class="page">
+    <div class="sheet cover frame">
+      <span class="corner tl"></span><span class="corner tr"></span>
+      <span class="corner bl"></span><span class="corner br"></span>
 
-    <!-- Konten kanan -->
-    <div class="content-col">
-      <span class="corner tr"></span><span class="corner br"></span>
-      <div class="stack">
+      <div class="cover-photo"><img src="assets/print-couple.jpg" alt="Richard &amp; Gita" /></div>
+
+      <div class="cover-body">
         <div class="crest">
           <img class="dragon left" src="assets/dragon.png" alt="" />
           <div class="xi-badge">囍</div>
           <img class="dragon right" src="assets/dragon.png" alt="" />
         </div>
-        <p class="invite-label">The Wedding Of</p>
 
-        <div class="names">
-          Richard
-          <span class="amp">&amp;</span>
-          Gita
-        </div>
-        <div class="han">张文兴 · 甘美花</div>
+        <p class="cover-label">Undangan Pernikahan</p>
+        <p class="cover-quote">“Dua insan yang dipersatukan oleh cinta dan restu,<br>melangkah bersama menuju satu kehidupan yang utuh.”</p>
 
-        <div class="rule"></div>
+        <div class="cover-names">Richard<span class="amp">&amp;</span>Gita</div>
+        <div class="cover-han">张文兴 · 甘美花</div>
+        <p class="cover-date">26 &amp; 28 Juni 2026 · Samarinda &amp; Balikpapan</p>
 
-        <p class="intro">
-          Dengan memohon rahmat Tuhan Yang Maha Esa, kami mengundang
-          Bapak/Ibu/Saudara/i untuk hadir &amp; memberikan doa restu.
+        <div class="cover-rule"></div>
+
+        <p class="cover-invite">
+          Dengan memohon rahmat dan berkat Tuhan Yang Maha Esa, kami bermaksud
+          menyelenggarakan pernikahan putra-putri kami. Merupakan suatu kehormatan
+          dan kebahagiaan bagi kami apabila Bapak/Ibu/Saudara/i berkenan hadir
+          untuk memberikan doa restu kepada kedua mempelai.
         </p>
 
-        <div class="parents">
-          <div class="p-block">
-            <span class="role">Mempelai Pria</span>
-            Putra dari <strong>Bp. Jack Chandra Wijaya</strong> <span class="han-sm">张振强</span> &amp; <strong>Ibu Kasmah</strong>
-          </div>
-          <div class="p-block">
-            <span class="role">Mempelai Wanita</span>
-            Putri dari <strong>Bp. Alm. Andry Martin</strong> <span class="han-sm">甘坤同</span> &amp; <strong>Ibu Lusiana</strong>
-          </div>
+        <div class="cover-to">
+          <div class="yth">Kepada Yth.</div>
+          <div class="nm">Bapak / Ibu / Saudara / i</div>
         </div>
+      </div>
+    </div>
+  </div>
 
-        <div class="events">
-          <div class="event">
-            <h3>Akad &amp; Acara Adat</h3>
-            <div class="e-line">
-              <span class="e-strong">Jumat, 26 Juni 2026 · 09.00 – 18.00 WITA</span>
-              Kediaman Mempelai Wanita — Jl. Samarinda Sanga-Sanga RT 17, Kel. Bukuan, Kec. Palaran, Samarinda
+  <!-- ===================== HALAMAN BELAKANG (DETAIL) ===================== -->
+  <div class="page">
+    <div class="sheet">
+      <div class="card">
+        <div class="photo-col"><img src="assets/print-couple.jpg" alt="Richard &amp; Gita" /></div>
+        <div class="content-col">
+          <div class="frame-in"></div>
+          <span class="corner tr"></span><span class="corner br"></span>
+          <div class="stack">
+            <div class="crest">
+              <img class="dragon left" src="assets/dragon.png" alt="" />
+              <div class="xi-badge">囍</div>
+              <img class="dragon right" src="assets/dragon.png" alt="" />
+            </div>
+            <p class="invite-label">The Wedding Of</p>
+            <div class="names">Richard<span class="amp">&amp;</span>Gita</div>
+            <div class="han">张文兴 · 甘美花</div>
+            <div class="rule"></div>
+            <p class="intro">
+              Dengan memohon rahmat Tuhan Yang Maha Esa, kami mengundang
+              Bapak/Ibu/Saudara/i untuk hadir &amp; memberikan doa restu.
+            </p>
+            <div class="parents">
+              <div class="p-block"><span class="role">Mempelai Pria</span>
+                Putra dari <strong>Bp. Jack Chandra Wijaya</strong> <span class="han-sm">张振强</span> &amp; <strong>Ibu Kasmah</strong></div>
+              <div class="p-block"><span class="role">Mempelai Wanita</span>
+                Putri dari <strong>Bp. Alm. Andry Martin</strong> <span class="han-sm">甘坤同</span> &amp; <strong>Ibu Lusiana</strong></div>
+            </div>
+            <div class="events">
+              <div class="event"><h3>Akad &amp; Acara Adat</h3>
+                <div class="e-line"><span class="e-strong">Jumat, 26 Juni 2026 · 09.00 – 18.00 WITA</span>
+                  Kediaman Mempelai Wanita — Jl. Samarinda Sanga-Sanga RT 17, Kel. Bukuan, Kec. Palaran, Samarinda</div></div>
+              <div class="event"><h3>Tea Pai &amp; Resepsi</h3>
+                <div class="e-line"><span class="e-strong">Minggu, 28 Juni 2026</span>
+                  Tea Pai 09.00 – 11.00 · Resepsi 11.00 – Selesai WITA
+                  <span class="e-strong">Nusantara Grand Ballroom</span>
+                  Hotel MaxOne, Jl. MT Haryono No.2, Balikpapan</div></div>
+            </div>
+            <div class="footer">
+              <div id="qr"></div>
+              <span class="qr-cap">Scan · Undangan Digital</span>
             </div>
           </div>
-          <div class="event">
-            <h3>Tea Pai &amp; Resepsi</h3>
-            <div class="e-line">
-              <span class="e-strong">Minggu, 28 Juni 2026</span>
-              Tea Pai 09.00 – 11.00 · Resepsi 11.00 – Selesai WITA
-              <span class="e-strong">Nusantara Grand Ballroom</span>
-              Hotel MaxOne, Jl. MT Haryono No.2, Balikpapan
-            </div>
-          </div>
-        </div>
-
-        <div class="footer">
-          <div id="qr"></div>
-          <span class="qr-cap">Scan · Undangan Digital</span>
         </div>
       </div>
     </div>
@@ -193,15 +208,11 @@
 <script>
   var SITE = 'https://wedding-richard-gita.vercel.app/';
   try {
-    new QRCode(document.getElementById('qr'), {
-      text: SITE, width: 200, height: 200,
-      colorDark: '#1d1012', colorLight: '#ffffff',
-      correctLevel: QRCode.CorrectLevel.M
-    });
+    new QRCode(document.getElementById('qr'), { text: SITE, width: 200, height: 200,
+      colorDark: '#1d1012', colorLight: '#ffffff', correctLevel: QRCode.CorrectLevel.M });
   } catch (e) {
     document.getElementById('qr').outerHTML =
-      '<img id="qr" src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=' +
-      encodeURIComponent(SITE) + '" alt="QR" />';
+      '<img id="qr" src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=' + encodeURIComponent(SITE) + '" alt="QR" />';
   }
 </script>
 
