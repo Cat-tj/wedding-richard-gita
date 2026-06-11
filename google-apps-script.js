@@ -101,3 +101,30 @@ function json(obj) {
     .createTextOutput(JSON.stringify(obj))
     .setMimeType(ContentService.MimeType.JSON);
 }
+
+/**
+ * JALANKAN SEKALI dari editor untuk membuat tab "RSVP" & "Ucapan".
+ * Cara: pilih fungsi "setup" di dropdown atas → klik ▶ Run.
+ * (Pertama kali akan minta izin akses spreadsheet — klik Allow.)
+ */
+function setup() {
+  const ss = SpreadsheetApp.openById(SHEET_ID);
+
+  let rsvp = ss.getSheetByName(RSVP_SHEET);
+  if (!rsvp) {
+    rsvp = ss.insertSheet(RSVP_SHEET);
+    rsvp.appendRow(['Timestamp', 'Nama', 'Jumlah Tamu', 'Kehadiran', 'Ucapan / Doa']);
+    styleHeader(rsvp, 5);
+  }
+
+  let ucapan = ss.getSheetByName(UCAPAN_SHEET);
+  if (!ucapan) {
+    ucapan = ss.insertSheet(UCAPAN_SHEET);
+    ucapan.appendRow(['Timestamp', 'Nama', 'Kehadiran', 'Ucapan']);
+    styleHeader(ucapan, 4);
+  }
+
+  ucapan.setFrozenRows(1);
+  rsvp.setFrozenRows(1);
+  Logger.log('Setup selesai: tab "RSVP" & "Ucapan" siap.');
+}
