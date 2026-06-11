@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Batch Undangan Cetak — Richard &amp; Gita</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,500;0,600;1,400;1,500&family=Noto+Serif+SC:wght@500;700&display=swap" rel="stylesheet" />
+<style>
+  :root{ --red:#9e0f22; --red2:#c8202f; --gold:#d4af37; --cream:#fbf4e6; }
+  *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+  body{ font-family:'Inter',sans-serif; background:#1d1012; color:var(--cream);
+    display:flex; flex-direction:column; align-items:center; padding:30px 16px; -webkit-font-smoothing:antialiased; }
+
+  /* panel kontrol (layar saja) */
+  .controls{ width:100%; max-width:760px; background:rgba(255,255,255,.05);
+    border:1px solid rgba(212,175,55,.25); border-radius:16px; padding:24px; margin-bottom:30px; }
+  .controls h1{ font-family:'Playfair Display',serif; font-style:italic; color:var(--gold); font-size:1.5rem; margin-bottom:4px; }
+  .controls p.sub{ font-size:13px; color:rgba(250,243,230,.5); margin-bottom:18px; line-height:1.6; }
+  label{ font-size:11px; letter-spacing:.2em; text-transform:uppercase; color:rgba(212,175,55,.6); display:block; margin:14px 0 6px; }
+  input[type=url], textarea{ width:100%; padding:11px 14px; background:rgba(255,255,255,.07);
+    border:1px solid rgba(255,255,255,.12); border-radius:9px; color:#faf3e6; font:14px 'Inter',sans-serif; outline:none; }
+  input:focus, textarea:focus{ border-color:var(--gold); }
+  textarea{ min-height:90px; resize:vertical; }
+  .row2{ display:flex; gap:16px; flex-wrap:wrap; }
+  .row2>div{ flex:1; min-width:240px; }
+  .btns{ display:flex; gap:12px; flex-wrap:wrap; margin-top:18px; align-items:center; }
+  .btn{ padding:11px 24px; border:none; border-radius:50px; cursor:pointer;
+    background:linear-gradient(135deg,#8b1c24,var(--red2)); color:#fff; font:600 13px 'Inter',sans-serif;
+    letter-spacing:.12em; text-transform:uppercase; box-shadow:0 8px 26px rgba(200,32,47,.4); transition:.2s; }
+  .btn:hover{ transform:translateY(-2px); }
+  .btn.gold{ background:linear-gradient(135deg,#b8860b,#e5c22a); color:#1a0f0d; box-shadow:none; }
+  .btn:disabled{ opacity:.4; cursor:not-allowed; transform:none; }
+  .count{ font-size:13px; color:var(--gold); }
+  .hint{ font-size:12px; color:rgba(250,243,230,.4); margin-top:6px; line-height:1.6; }
+
+  /* ===== KARTU A5 (sama dgn print-invitation) ===== */
+  .page{ margin:0 auto 26px; }
+  .card{ width:148mm; height:210mm; position:relative; overflow:hidden; display:flex;
+    box-shadow:0 24px 60px rgba(0,0,0,.5);
+    background:radial-gradient(130% 90% at 70% -10%, #b3122b 0%, #8e0f22 55%, #6f0a18 100%); }
+  .photo-col{ flex:0 0 58mm; position:relative; overflow:hidden; background:#6f0a18; }
+  .photo-col::before{ content:''; position:absolute; inset:0; z-index:0;
+    background:url('assets/print-couple.jpg') center/cover; filter:blur(7px) brightness(.5) saturate(1.1); transform:scale(1.15); }
+  .photo-col img{ position:relative; z-index:1; width:100%; height:100%; object-fit:contain; display:block; }
+  .photo-col::after{ content:''; position:absolute; inset:0; z-index:2; pointer-events:none;
+    box-shadow: inset -2px 0 0 rgba(212,175,55,.9);
+    background:linear-gradient(90deg, rgba(0,0,0,.18), transparent 16%, transparent 86%, rgba(110,10,24,.35)); }
+  .content-col{ flex:1; position:relative; text-align:center; padding:11mm 9mm 14mm; display:flex; flex-direction:column; align-items:center; }
+  .content-col::before{ content:''; position:absolute; inset:5mm; border:1px solid rgba(212,175,55,.55); pointer-events:none; }
+  .corner{position:absolute; width:9mm; height:9mm; border:1.5px solid var(--gold); pointer-events:none;}
+  .corner.tr{top:6.4mm;right:6.4mm;border-left:0;border-bottom:0;}
+  .corner.br{bottom:6.4mm;right:6.4mm;border-left:0;border-top:0;}
+  .stack{position:relative; z-index:2; display:flex; flex-direction:column; align-items:center; height:100%; width:100%;}
+  .crest{ display:flex; align-items:center; justify-content:center; gap:1mm; margin-bottom:3mm; }
+  .dragon{ height:20mm; width:auto; flex:0 0 auto; filter:drop-shadow(0 .4mm .8mm rgba(0,0,0,.35)); }
+  .dragon.right{ transform:scaleX(-1); }
+  .xi-badge{ width:12mm; height:12mm; border-radius:50%; flex:0 0 12mm; display:flex; align-items:center; justify-content:center;
+    font-family:'Noto Serif SC',serif; font-weight:700; font-size:14pt; color:var(--red);
+    background:radial-gradient(circle at 34% 30%,#fff0a0 0%,#e5c22a 32%,#b8860b 70%,#7a5a00 100%);
+    border:1px solid rgba(122,90,0,.6); box-shadow:0 2mm 5mm rgba(0,0,0,.35); }
+  .invite-label{font-size:7pt; letter-spacing:.36em; text-transform:uppercase; color:rgba(251,244,230,.72); margin-bottom:2mm;}
+  .names{font-family:'Playfair Display',serif; font-weight:600; font-size:23pt; line-height:1.02; color:#fff;}
+  .names .amp{display:block; font-style:italic; font-weight:400; font-size:14pt; color:var(--gold); margin:.6mm 0;}
+  .han{font-family:'Noto Serif SC',serif; font-size:9.5pt; color:var(--gold); letter-spacing:.16em; margin-top:2mm;}
+  .rule{width:34mm; height:1px; background:linear-gradient(90deg,transparent,var(--gold),transparent); margin:3.5mm 0;}
+  .to{ font-size:7.6pt; line-height:1.5; color:rgba(251,244,230,.85); margin-bottom:3.5mm; }
+  .to b{ display:block; color:#fff; font-size:9.5pt; font-weight:600; margin-top:.6mm; }
+  .to .yth{ font-size:6.4pt; letter-spacing:.22em; text-transform:uppercase; color:var(--gold); }
+  .parents{font-size:7.4pt; line-height:1.4; color:rgba(251,244,230,.9); margin-bottom:1mm;}
+  .parents .p-block{margin-bottom:2.5mm;}
+  .parents .role{font-size:6.2pt; letter-spacing:.24em; text-transform:uppercase; color:var(--gold); display:block; margin-bottom:.4mm;}
+  .parents strong{color:#fff; font-weight:600; font-size:7.8pt;}
+  .han-sm{font-family:'Noto Serif SC',serif; color:var(--gold); font-size:7.6pt; white-space:nowrap;}
+  .events{width:100%; display:flex; flex-direction:column; gap:3mm; margin:2.5mm 0;}
+  .event{ border:1px solid rgba(212,175,55,.4); border-radius:2.5mm; padding:2.6mm 3mm; background:rgba(0,0,0,.16); }
+  .event h3{font-family:'Playfair Display',serif; font-weight:600; font-size:10pt; color:var(--gold); margin-bottom:1mm;}
+  .event .e-line{font-size:7.2pt; line-height:1.45; color:rgba(251,244,230,.92);}
+  .event .e-strong{color:#fff; font-weight:600; display:block; font-size:7.6pt; margin-top:.6mm;}
+  .footer{margin-top:auto; display:flex; flex-direction:column; align-items:center; gap:1.6mm; padding-top:3mm;}
+  .qr{width:21mm; height:21mm; background:#fff; padding:1.3mm; border-radius:2mm;}
+  .qr img,.qr canvas{width:100%!important; height:100%!important; display:block;}
+  .qr-cap{font-size:6pt; letter-spacing:.16em; text-transform:uppercase; color:var(--gold);}
+
+  /* PRINT */
+  @page{ size:148mm 210mm; margin:0; }
+  @media print{
+    html,body{ margin:0; padding:0; background:#6f0a18; display:block; }
+    .controls{ display:none; }
+    .page{ margin:0; page-break-after:always; }
+    .page:last-child{ page-break-after:auto; }
+    .card{ box-shadow:none; }
+    *{ -webkit-print-color-adjust:exact !important; print-color-adjust:exact !important; }
+  }
+</style>
+</head>
+<body>
+
+  <div class="controls">
+    <h1>Batch Undangan Cetak</h1>
+    <p class="sub">Buat kartu undangan A5 untuk banyak tamu sekaligus. Klik <b>Generate</b>, lalu <b>Cetak / Simpan PDF</b> → 1 PDF berisi semua kartu (1 tamu per halaman).</p>
+
+    <label>URL Website (untuk QR personal)</label>
+    <input type="url" id="base-url" value="https://wedding-richard-gita.vercel.app/" />
+
+    <div class="row2">
+      <div>
+        <label>Tamu Personal (1 per baris)</label>
+        <textarea id="guest-list" placeholder="Budi Santoso&#10;Siti Rahayu&#10;..."></textarea>
+      </div>
+      <div>
+        <label>Grup / Organisasi (1 per baris)</label>
+        <textarea id="group-list" placeholder="Keluarga Besar Zhang&#10;..."></textarea>
+      </div>
+    </div>
+
+    <div class="btns">
+      <button class="btn" onclick="generate()">✦ Generate Kartu</button>
+      <button class="btn gold" id="print-btn" onclick="window.print()" disabled>🖨 Cetak / Simpan PDF</button>
+      <span class="count" id="count"></span>
+    </div>
+    <p class="hint">Saat Save as PDF: <b>Paper size = A5</b>, <b>Margins = None</b>, <b>Scale = 100</b>, centang <b>Background graphics</b>. Tiap tamu otomatis 1 halaman.</p>
+  </div>
+
+  <div id="pages"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+<script>
+  function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+  function readLines(id){ return document.getElementById(id).value.trim().split('\n').map(s=>s.trim()).filter(Boolean); }
+
+  function greeting(name, group){
+    if (group) {
+      return `<span class="yth">Kepada Yth.</span><b>${esc(name)}</b>kami mengundang Bapak/Ibu/Saudara/i sekalian untuk hadir &amp; memberikan doa restu.`;
+    }
+    return `<span class="yth">Kepada Yth. Bapak/Ibu/Saudara/i</span><b>${esc(name)}</b>untuk hadir &amp; memberikan doa restu pada pernikahan kami.`;
+  }
+
+  function cardHTML(name, group, baseUrl){
+    const url = baseUrl.replace(/\?.*$/, '') + '?to=' + encodeURIComponent(name);
+    return `<div class="page"><div class="card">
+      <div class="photo-col"><img src="assets/print-couple.jpg" alt="" /></div>
+      <div class="content-col">
+        <span class="corner tr"></span><span class="corner br"></span>
+        <div class="stack">
+          <div class="crest">
+            <img class="dragon left" src="assets/dragon.png" alt="" />
+            <div class="xi-badge">囍</div>
+            <img class="dragon right" src="assets/dragon.png" alt="" />
+          </div>
+          <p class="invite-label">The Wedding Of</p>
+          <div class="names">Richard<span class="amp">&amp;</span>Gita</div>
+          <div class="han">张文兴 · 甘美花</div>
+          <div class="rule"></div>
+          <p class="to">${greeting(name, group)}</p>
+          <div class="parents">
+            <div class="p-block"><span class="role">Mempelai Pria</span>
+              Putra dari <strong>Bp. Jack Chandra Wijaya</strong> <span class="han-sm">张振强</span> &amp; <strong>Ibu Kasmah</strong></div>
+            <div class="p-block"><span class="role">Mempelai Wanita</span>
+              Putri dari <strong>Bp. Alm. Andry Martin</strong> <span class="han-sm">甘坤同</span> &amp; <strong>Ibu Lusiana</strong></div>
+          </div>
+          <div class="events">
+            <div class="event"><h3>Akad &amp; Acara Adat</h3>
+              <div class="e-line"><span class="e-strong">Jumat, 26 Juni 2026 · 09.00 – 18.00 WITA</span>
+                Kediaman Mempelai Wanita — Jl. Samarinda Sanga-Sanga RT 17, Kel. Bukuan, Kec. Palaran, Samarinda</div></div>
+            <div class="event"><h3>Tea Pai &amp; Resepsi</h3>
+              <div class="e-line"><span class="e-strong">Minggu, 28 Juni 2026</span>
+                Tea Pai 09.00 – 11.00 · Resepsi 11.00 – Selesai WITA
+                <span class="e-strong">Nusantara Grand Ballroom</span>
+                Hotel MaxOne, Jl. MT Haryono No.2, Balikpapan</div></div>
+          </div>
+          <div class="footer">
+            <div class="qr" data-url="${esc(url)}"></div>
+            <span class="qr-cap">Scan · Undangan Digital</span>
+          </div>
+        </div>
+      </div>
+    </div></div>`;
+  }
+
+  function generate(){
+    const baseUrl = document.getElementById('base-url').value.trim();
+    const entries = [
+      ...readLines('guest-list').map(n=>({name:n,group:false})),
+      ...readLines('group-list').map(n=>({name:n,group:true})),
+    ];
+    if(!entries.length){ alert('Masukkan minimal 1 nama tamu atau grup!'); return; }
+
+    document.getElementById('pages').innerHTML = entries.map(e=>cardHTML(e.name, e.group, baseUrl)).join('');
+
+    // buat QR tiap kartu
+    document.querySelectorAll('.qr').forEach(el=>{
+      const u = el.dataset.url;
+      try{ new QRCode(el,{text:u,width:200,height:200,colorDark:'#1d1012',colorLight:'#fff',correctLevel:QRCode.CorrectLevel.M}); }
+      catch(err){ el.innerHTML = '<img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data='+encodeURIComponent(u)+'">'; }
+    });
+
+    const pc = readLines('guest-list').length, gc = readLines('group-list').length;
+    document.getElementById('count').textContent = entries.length + ' kartu' + (gc? ` (${pc} personal · ${gc} grup)`:'');
+    document.getElementById('print-btn').disabled = false;
+    document.getElementById('pages').scrollIntoView({behavior:'smooth'});
+  }
+</script>
+
+</body>
+</html>

@@ -4,3 +4,4 @@ assets/*.svg
 google-apps-script.js
 generate-links.html
 print-invitation.html
+print-batch.html
