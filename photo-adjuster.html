@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8"/>
+<title>Photo Adjuster — Print Card</title>
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:system-ui,sans-serif;background:#1a1a2e;color:#eee;padding:24px;min-height:100vh;}
+  h1{font-size:18px;color:#d4af37;margin-bottom:6px;}
+  p.sub{font-size:12px;color:#aaa;margin-bottom:24px;}
+
+  .panels{display:flex;gap:32px;flex-wrap:wrap;align-items:flex-start;}
+
+  .panel{background:#111827;border:1px solid #2d2d4e;border-radius:12px;padding:20px;min-width:280px;}
+  .panel h2{font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:#d4af37;margin-bottom:14px;}
+
+  /* frame preview */
+  .frame-wrap{position:relative;overflow:hidden;cursor:grab;user-select:none;border:2px solid #d4af37;border-radius:4px;background:#6f0a18;}
+  .frame-wrap:active{cursor:grabbing;}
+  .frame-wrap img{position:absolute;top:0;left:0;transform-origin:0 0;pointer-events:none;display:block;}
+
+  /* cover frame: 148:98 ratio → 370×245px */
+  .cover-frame{width:370px;height:245px;}
+  /* back photo col: 58:210 ratio → 160×580px */
+  .back-frame{width:160px;height:580px;}
+
+  .controls{margin-top:14px;display:flex;flex-direction:column;gap:10px;}
+  .ctrl-row{display:flex;align-items:center;gap:10px;}
+  .ctrl-row label{font-size:12px;color:#aaa;width:52px;flex-shrink:0;}
+  input[type=range]{flex:1;accent-color:#d4af37;}
+  .val{font-size:12px;color:#d4af37;width:44px;text-align:right;flex-shrink:0;}
+
+  .upload-btn{display:inline-block;margin-top:4px;padding:8px 14px;background:#9e0f22;color:#fff;border-radius:6px;font-size:12px;cursor:pointer;border:none;}
+  .upload-btn:hover{background:#c8202f;}
+  input[type=file]{display:none;}
+
+  .css-out{margin-top:16px;}
+  .css-out label{font-size:11px;color:#888;display:block;margin-bottom:4px;}
+  .css-box{background:#0d1117;border:1px solid #2d2d4e;border-radius:6px;padding:10px;font-family:monospace;font-size:11px;color:#7ee787;white-space:pre-wrap;word-break:break-all;line-height:1.6;}
+  .copy-btn{margin-top:6px;padding:6px 12px;background:#21262d;color:#d4af37;border:1px solid #d4af37;border-radius:6px;font-size:11px;cursor:pointer;}
+  .copy-btn:hover{background:#d4af37;color:#111;}
+  .copy-btn.ok{background:#2ea043;border-color:#2ea043;color:#fff;}
+
+  .reset-btn{padding:6px 12px;background:#21262d;color:#aaa;border:1px solid #444;border-radius:6px;font-size:11px;cursor:pointer;}
+  .reset-btn:hover{border-color:#d4af37;color:#d4af37;}
+</style>
+</head>
+<body>
+
+<h1>🖼 Photo Adjuster — Print Card</h1>
+<p class="sub">Upload foto → drag untuk geser → slider untuk zoom → copy CSS → paste ke print-invitation.html</p>
+
+<div class="panels">
+
+  <!-- COVER DEPAN -->
+  <div class="panel" id="panel-cover">
+    <h2>Cover Depan (148 × 98 mm)</h2>
+    <div class="frame-wrap cover-frame" id="frame-cover">
+      <img id="img-cover" src="" alt="" style="display:none"/>
+    </div>
+    <div class="controls">
+      <div class="ctrl-row">
+        <label>Zoom</label>
+        <input type="range" id="scale-cover" min="0.5" max="5" step="0.05" value="1"/>
+        <span class="val" id="sv-cover">1.00×</span>
+      </div>
+      <div class="ctrl-row">
+        <button class="upload-btn" onclick="document.getElementById('file-cover').click()">📂 Upload Foto</button>
+        <input type="file" id="file-cover" accept="image/*"/>
+        <button class="reset-btn" onclick="resetPanel('cover')">Reset</button>
+      </div>
+    </div>
+    <div class="css-out">
+      <label>CSS (copy ke .cover-photo img)</label>
+      <div class="css-box" id="css-cover">— upload foto dulu —</div>
+      <button class="copy-btn" id="cp-cover" onclick="copyCSS('cover')">Copy CSS</button>
+    </div>
+  </div>
+
+  <!-- FOTO BELAKANG -->
+  <div class="panel" id="panel-back">
+    <h2>Foto Belakang / Kolom Kiri (58 × 210 mm)</h2>
+    <div class="frame-wrap back-frame" id="frame-back">
+      <img id="img-back" src="" alt="" style="display:none"/>
+    </div>
+    <div class="controls">
+      <div class="ctrl-row">
+        <label>Zoom</label>
+        <input type="range" id="scale-back" min="0.5" max="5" step="0.05" value="1"/>
+        <span class="val" id="sv-back">1.00×</span>
+      </div>
+      <div class="ctrl-row">
+        <button class="upload-btn" onclick="document.getElementById('file-back').click()">📂 Upload Foto</button>
+        <input type="file" id="file-back" accept="image/*"/>
+        <button class="reset-btn" onclick="resetPanel('back')">Reset</button>
+      </div>
+    </div>
+    <div class="css-out">
+      <label>CSS (copy ke .photo-col img)</label>
+      <div class="css-box" id="css-back">— upload foto dulu —</div>
+      <button class="copy-btn" id="cp-back" onclick="copyCSS('back')">Copy CSS</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const panels = {};
+
+function initPanel(id, frameW, frameH) {
+  const frame = document.getElementById('frame-' + id);
+  const img   = document.getElementById('img-' + id);
+  const scaleEl = document.getElementById('scale-' + id);
+  const scaleVal = document.getElementById('sv-' + id);
+  const fileEl = document.getElementById('file-' + id);
+
+  const state = { scale: 1, x: 0, y: 0, imgW: 0, imgH: 0, dragging: false, startX: 0, startY: 0, ox: 0, oy: 0 };
+  panels[id] = state;
+
+  fileEl.addEventListener('change', e => {
+    const f = e.target.files[0]; if (!f) return;
+    const url = URL.createObjectURL(f);
+    img.onload = () => {
+      state.imgW = img.naturalWidth;
+      state.imgH = img.naturalHeight;
+      // auto-fit: scale so image covers frame
+      const scaleX = frameW / state.imgW;
+      const scaleY = frameH / state.imgH;
+      state.scale = Math.max(scaleX, scaleY);
+      state.x = (frameW - state.imgW * state.scale) / 2;
+      state.y = (frameH - state.imgH * state.scale) / 2;
+      scaleEl.value = state.scale.toFixed(2);
+      scaleEl.min = Math.max(scaleX, scaleY).toFixed(2); // min = cover fit
+      img.style.display = 'block';
+      clamp(state, frameW, frameH);
+      apply(id, state, frameW, frameH);
+    };
+    img.src = url;
+  });
+
+  scaleEl.addEventListener('input', () => {
+    state.scale = parseFloat(scaleEl.value);
+    scaleVal.textContent = state.scale.toFixed(2) + '×';
+    clamp(state, frameW, frameH);
+    apply(id, state, frameW, frameH);
+  });
+
+  // drag
+  frame.addEventListener('mousedown', e => {
+    if (!state.imgW) return;
+    state.dragging = true;
+    state.startX = e.clientX; state.startY = e.clientY;
+    state.ox = state.x; state.oy = state.y;
+    e.preventDefault();
+  });
+  window.addEventListener('mousemove', e => {
+    if (!state.dragging) return;
+    state.x = state.ox + (e.clientX - state.startX);
+    state.y = state.oy + (e.clientY - state.startY);
+    clamp(state, frameW, frameH);
+    apply(id, state, frameW, frameH);
+  });
+  window.addEventListener('mouseup', () => { state.dragging = false; });
+
+  // touch
+  frame.addEventListener('touchstart', e => {
+    if (!state.imgW) return;
+    state.dragging = true;
+    state.startX = e.touches[0].clientX; state.startY = e.touches[0].clientY;
+    state.ox = state.x; state.oy = state.y;
+    e.preventDefault();
+  }, {passive:false});
+  window.addEventListener('touchmove', e => {
+    if (!state.dragging) return;
+    state.x = state.ox + (e.touches[0].clientX - state.startX);
+    state.y = state.oy + (e.touches[0].clientY - state.startY);
+    clamp(state, frameW, frameH);
+    apply(id, state, frameW, frameH);
+  }, {passive:false});
+  window.addEventListener('touchend', () => { state.dragging = false; });
+}
+
+function clamp(state, fw, fh) {
+  const iw = state.imgW * state.scale;
+  const ih = state.imgH * state.scale;
+  state.x = Math.min(0, Math.max(fw - iw, state.x));
+  state.y = Math.min(0, Math.max(fh - ih, state.y));
+}
+
+function apply(id, state, fw, fh) {
+  const img = document.getElementById('img-' + id);
+  const scaleVal = document.getElementById('sv-' + id);
+  img.style.transform = `scale(${state.scale})`;
+  img.style.transformOrigin = '0 0';
+  img.style.left = state.x + 'px';
+  img.style.top  = state.y + 'px';
+  img.style.width  = state.imgW + 'px';
+  img.style.height = state.imgH + 'px';
+  scaleVal.textContent = state.scale.toFixed(2) + '×';
+  updateCSS(id, state, fw, fh);
+}
+
+function updateCSS(id, state, fw, fh) {
+  const box = document.getElementById('css-' + id);
+  if (!state.imgW) return;
+
+  // convert pixel offset → object-position percentage
+  const iw = state.imgW * state.scale;
+  const ih = state.imgH * state.scale;
+  const extraW = iw - fw;
+  const extraH = ih - fh;
+  const px = extraW <= 0 ? 50 : ((-state.x) / extraW * 100);
+  const py = extraH <= 0 ? 50 : ((-state.y) / extraH * 100);
+  const pxC = px.toFixed(1);
+  const pyC = py.toFixed(1);
+  const sc  = state.scale.toFixed(2);
+
+  let css;
+  if (id === 'cover') {
+    css = `object-fit: cover;\nobject-position: ${pxC}% ${pyC}%;\ntransform: scale(${sc});\ntransform-origin: ${pxC}% ${pyC}%;`;
+  } else {
+    css = `object-fit: cover;\nobject-position: ${pxC}% ${pyC}%;\ntransform: scale(${sc});\ntransform-origin: ${pxC}% ${pyC}%;`;
+  }
+  box.textContent = css;
+  box.dataset.css = css;
+}
+
+function copyCSS(id) {
+  const box = document.getElementById('css-' + id);
+  const btn = document.getElementById('cp-' + id);
+  navigator.clipboard.writeText(box.dataset.css || box.textContent).then(() => {
+    btn.textContent = '✓ Copied!'; btn.classList.add('ok');
+    setTimeout(() => { btn.textContent = 'Copy CSS'; btn.classList.remove('ok'); }, 2000);
+  });
+}
+
+function resetPanel(id) {
+  const s = panels[id]; if (!s || !s.imgW) return;
+  const fw = id === 'cover' ? 370 : 160;
+  const fh = id === 'cover' ? 245 : 580;
+  const scaleX = fw / s.imgW, scaleY = fh / s.imgH;
+  s.scale = Math.max(scaleX, scaleY);
+  s.x = (fw - s.imgW * s.scale) / 2;
+  s.y = (fh - s.imgH * s.scale) / 2;
+  document.getElementById('scale-' + id).value = s.scale.toFixed(2);
+  clamp(s, fw, fh);
+  apply(id, s, fw, fh);
+}
+
+initPanel('cover', 370, 245);
+initPanel('back',  160, 580);
+</script>
+</body>
+</html>
