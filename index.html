@@ -152,49 +152,65 @@
     }
     .envelope:hover { transform: scale(1.03); }
 
-    /* body */
+    /* body — angpau merah mewah + seam emas + bingkai emas ganda */
     .env-body {
       position: absolute; inset: 0;
-      background: linear-gradient(155deg, #f5ede0 0%, #e4d0b5 100%);
-      border-radius: 12px;
-      border: 1.5px solid rgba(212,175,55,.4);
+      background:
+        linear-gradient(to bottom right, transparent calc(50% - .8px), rgba(212,175,55,.55) 50%, transparent calc(50% + .8px)),
+        linear-gradient(to bottom left,  transparent calc(50% - .8px), rgba(212,175,55,.55) 50%, transparent calc(50% + .8px)),
+        radial-gradient(120% 120% at 50% 0%, #b3122b 0%, #8e0f22 60%, #6e0a19 100%);
+      border-radius: 10px;
+      border: 1.5px solid var(--gold);
       overflow: hidden;
+      /* bingkai emas ganda di dalam */
+      box-shadow:
+        inset 0 0 0 1px rgba(212,175,55,.55),
+        inset 0 0 0 7px rgba(212,175,55,.0),
+        inset 0 0 0 8px rgba(212,175,55,.35),
+        inset 0 0 40px rgba(0,0,0,.35);
     }
-    /* subtle inner fold lines */
+    /* bayangan halus pada flap bawah (memberi kedalaman) */
     .env-body::before {
       content:''; position:absolute; inset:0;
-      background:
-        linear-gradient(135deg, rgba(212,175,55,.08) 0 50%, transparent 50%),
-        linear-gradient(225deg, rgba(212,175,55,.08) 0 50%, transparent 50%);
+      clip-path: polygon(0 100%, 100% 100%, 50% 50%);
+      background: linear-gradient(to top, rgba(0,0,0,.22), transparent);
     }
 
-    /* flap */
+    /* flap atas — segitiga merah, trim emas */
     .env-flap {
-      position: absolute; left: 50%; width: 320px; height: 130px;
-      top: -100px;
-      background: linear-gradient(170deg, #e8d8c0 0%, #d4b87a 100%);
-      border: 1.5px solid rgba(212,175,55,.35);
-      border-radius: 160px 160px 0 0;
-      transform: translateX(-50%);
-      transform-origin: bottom center;
+      position: absolute; left: 0; top: 0;
+      width: 320px; height: 116px;
+      background: var(--gold); /* jadi trim emas tepi flap */
+      clip-path: polygon(0 0, 100% 0, 50% 100%);
+      transform-origin: top center;
+      transform: rotateX(0deg);
       transform-style: preserve-3d;
       transition: transform .85s cubic-bezier(.4,0,.2,1);
-      box-shadow: 0 8px 24px rgba(0,0,0,.3);
+      filter: drop-shadow(0 5px 8px rgba(0,0,0,.35));
       z-index: 2;
     }
+    .env-flap::before {
+      content:''; position:absolute; inset: 1.5px 1.5px 0;
+      background: radial-gradient(120% 140% at 50% 0%, #c4152f 0%, #9a1024 70%, #7a0c1c 100%);
+      clip-path: polygon(0 0, 100% 0, 50% 100%);
+    }
     .envelope.open .env-flap {
-      transform: translateX(-50%) rotateX(-168deg);
+      transform: rotateX(178deg);
+      z-index: 0;
     }
 
     /* wax seal */
     .env-seal {
       position: absolute; top: 50%; left: 50%;
       transform: translate(-50%,-50%);
-      width: 64px; height: 64px; border-radius: 50%; z-index: 3;
+      width: 66px; height: 66px; border-radius: 50%; z-index: 3;
       background: radial-gradient(circle at 32% 28%, #fff0a0 0%, #e5c22a 30%, #b8860b 65%, #7a5a00 100%);
       box-shadow: 0 8px 28px rgba(0,0,0,.55), inset -2px -3px 8px rgba(0,0,0,.35), 0 0 30px rgba(212,175,55,.5);
+      border: 1.5px solid rgba(122,90,0,.6);
       display: flex; align-items: center; justify-content: center;
-      font-size: 28px;
+      font-size: 30px; font-weight: 700; line-height: 1;
+      color: #8e0f22;
+      text-shadow: 0 1px 1px rgba(255,240,160,.6);
       animation: seal-float 2.8s ease-in-out infinite;
       transition: opacity .4s ease, transform .4s ease;
     }
@@ -269,10 +285,12 @@
     .hero-video.show { opacity: 1; }
     .hero-overlay {
       position: absolute; inset: 0; z-index: 1;
-      background: linear-gradient(to bottom,
-        rgba(18,10,12,.45) 0%,
-        rgba(18,10,12,.2) 40%,
-        rgba(18,10,12,.65) 100%);
+      background:
+        radial-gradient(120% 90% at 50% 55%, rgba(18,10,12,.25) 0%, rgba(18,10,12,.5) 70%, rgba(18,10,12,.72) 100%),
+        linear-gradient(to bottom,
+          rgba(18,10,12,.62) 0%,
+          rgba(18,10,12,.42) 40%,
+          rgba(18,10,12,.8) 100%);
     }
     .hero-body {
       position: relative; z-index: 2; text-align: center;
@@ -703,6 +721,56 @@
     }
     .carousel-item:hover .ci-overlay { opacity: 1; }
 
+    /* ── PORTRAIT MINI-GALLERY (4 foto / mempelai) ── */
+    .portrait-gallery {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      max-width: 880px;
+      margin: 48px auto 0;
+    }
+    @media (max-width: 640px) {
+      .portrait-gallery { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+    }
+    .pg-item {
+      aspect-ratio: 3 / 4;
+      border-radius: 12px;
+      overflow: hidden;
+      position: relative;
+      cursor: zoom-in;
+      border: 1px solid rgba(212,175,55,.18);
+      box-shadow: 0 6px 18px rgba(0,0,0,.35);
+    }
+    .pg-item img {
+      width: 100%; height: 100%;
+      object-fit: cover; display: block;
+      transition: transform .45s cubic-bezier(.25,.46,.45,.94);
+    }
+    .pg-item::after {
+      content: '';
+      position: absolute; inset: 0;
+      border-radius: 12px;
+      border: 1.5px solid transparent;
+      transition: border-color .3s ease;
+    }
+    .pg-item:hover img { transform: scale(1.09); }
+    .pg-item:hover::after { border-color: rgba(212,175,55,.55); }
+    @media (max-width: 560px) {
+      .portrait-gallery { gap: 8px; }
+    }
+
+    /* spasi antar 3 carousel */
+    .carousel-track-wrap + .carousel-track-wrap { margin-top: 22px; }
+
+    /* carousel foto per-mempelai */
+    .portrait-carousel {
+      max-width: 1000px;
+      margin: 46px auto 0;
+      position: relative;
+      -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 7%, #000 93%, transparent 100%);
+              mask-image: linear-gradient(90deg, transparent 0, #000 7%, #000 93%, transparent 100%);
+    }
+
     /* ── LIGHTBOX ── */
     #lightbox {
       display: none; position: fixed; inset: 0; z-index: 500;
@@ -872,6 +940,60 @@
     .rsvp-success p { font-size: 14px; color: rgba(250,248,243,.55); line-height: 1.7; }
 
     /* ══════════════════════════════════════
+       UCAPAN / LEAVE A MESSAGE
+    ══════════════════════════════════════ */
+    .wishes { padding: 90px 24px 100px; background: var(--dark2); }
+    .wishes-header { text-align: center; margin-bottom: 40px; }
+    .wish-wrap { max-width: 560px; margin: 0 auto; }
+    .wish-form {
+      border-radius: 20px; padding: 32px 28px;
+      display: flex; flex-direction: column; gap: 16px; margin-bottom: 30px;
+    }
+    @media (max-width: 560px) { .wish-form { padding: 26px 20px; } }
+    .wish-count {
+      text-align: center; font-size: 11px; letter-spacing: .18em;
+      text-transform: uppercase; color: rgba(212,175,55,.6); margin-bottom: 18px;
+    }
+    .wish-list {
+      max-height: 460px; overflow-y: auto; padding-right: 6px;
+    }
+    .wish-list::-webkit-scrollbar { width: 5px; }
+    .wish-list::-webkit-scrollbar-thumb { background: var(--gold-dim); border-radius: 4px; }
+    /* mode endless auto-scroll (saat ucapan > 5) */
+    .wish-list.marquee {
+      height: 460px; max-height: 460px; overflow: hidden; padding-right: 0;
+      -webkit-mask-image: linear-gradient(180deg, transparent 0, #000 8%, #000 92%, transparent 100%);
+              mask-image: linear-gradient(180deg, transparent 0, #000 8%, #000 92%, transparent 100%);
+    }
+    .wish-track { display: flex; flex-direction: column; gap: 14px; }
+    .wish-list.marquee .wish-track { will-change: transform; }
+    .wish-card {
+      border: 1px solid rgba(212,175,55,.14);
+      background: rgba(255,255,255,.04);
+      border-radius: 14px; padding: 16px 18px;
+      animation: wish-in .4s ease;
+    }
+    @keyframes wish-in { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+    .wish-top { display: flex; align-items: center; gap: 10px; margin-bottom: 9px; }
+    .wish-avatar {
+      width: 34px; height: 34px; border-radius: 50%; flex: 0 0 34px;
+      background: linear-gradient(135deg, var(--red), var(--gold));
+      display: flex; align-items: center; justify-content: center;
+      color: #fff; font-weight: 600; font-size: 14px;
+    }
+    .wish-name { font-weight: 600; font-size: 14px; color: var(--white); }
+    .wish-badge {
+      font-size: 9px; letter-spacing: .08em; text-transform: uppercase;
+      padding: 3px 9px; border-radius: 50px; white-space: nowrap;
+    }
+    .wish-badge.hadir { background: rgba(46,160,67,.18); color: #7bd88f; }
+    .wish-badge.tidak { background: rgba(200,32,47,.18); color: #ef8a8a; }
+    .wish-badge.ragu  { background: rgba(212,175,55,.16); color: var(--gold); }
+    .wish-time { margin-left: auto; font-size: 10px; color: rgba(250,248,243,.35); white-space: nowrap; }
+    .wish-text { font-size: 13.5px; line-height: 1.65; color: rgba(250,248,243,.78); white-space: pre-wrap; word-break: break-word; }
+    .wish-empty, .wish-loading { text-align: center; font-size: 13px; color: rgba(250,248,243,.4); padding: 26px; }
+
+    /* ══════════════════════════════════════
        CLOSING
     ══════════════════════════════════════ */
     .closing {
@@ -1030,7 +1152,7 @@
       <div class="envelope" id="envelope">
         <div class="env-body"></div>
         <div class="env-flap"></div>
-        <div class="env-seal">💌</div>
+        <div class="env-seal" lang="zh">囍</div>
       </div>
     </div>
 
@@ -1060,7 +1182,7 @@
         <span class="amp">&amp;</span>
         Gita
       </h1>
-      <p class="hero-date">26 &amp; 28 Juni 2026 · Balikpapan</p>
+      <p class="hero-date">26 &amp; 28 Juni 2026 · Samarinda &amp; Balikpapan</p>
     </div>
     <div class="scroll-cue">
       <span>Scroll</span>
@@ -1115,6 +1237,21 @@
         </p>
       </div>
     </div>
+    <div class="portrait-carousel reveal">
+      <div class="carousel-track-wrap">
+        <div class="carousel-track" data-carousel data-dir="left">
+          <div class="carousel-item"><img class="ci-photo" src="assets/groom-1.jpg" alt="Richard" loading="lazy" /><div class="ci-glass"></div></div>
+          <div class="carousel-item"><img class="ci-photo" src="assets/groom-2.jpg" alt="Richard" loading="lazy" /><div class="ci-glass"></div></div>
+          <div class="carousel-item"><img class="ci-photo" src="assets/groom-3.jpg" alt="Richard" loading="lazy" /><div class="ci-glass"></div></div>
+          <div class="carousel-item"><img class="ci-photo" src="assets/groom-4.jpg" alt="Richard" loading="lazy" /><div class="ci-glass"></div></div>
+          <div class="carousel-item"><img class="ci-photo" src="assets/groom-5.jpg" alt="Richard" loading="lazy" /><div class="ci-glass"></div></div>
+          <div class="carousel-item"><img class="ci-photo" src="assets/groom-6.jpg" alt="Richard" loading="lazy" /><div class="ci-glass"></div></div>
+          <div class="carousel-item"><img class="ci-photo" src="assets/groom-7.jpg" alt="Richard" loading="lazy" /><div class="ci-glass"></div></div>
+          <div class="carousel-item"><img class="ci-photo" src="assets/groom-8.jpg" alt="Richard" loading="lazy" /><div class="ci-glass"></div></div>
+          <div class="carousel-item"><img class="ci-photo" src="assets/groom-9.jpg" alt="Richard" loading="lazy" /><div class="ci-glass"></div></div>
+        </div>
+      </div>
+    </div>
   </section>
 
   <!-- ── BRIDE PORTRAIT ── -->
@@ -1143,9 +1280,26 @@
         <div style="width:48px;height:1px;background:linear-gradient(90deg,var(--gold),transparent);margin:4px 0 4px;"></div>
         <span class="portrait-from">Putri dari</span>
         <p class="portrait-parents">
-          <strong>Bapak Alm. Andry Martin</strong><br>
+          <strong>Bapak Alm. Andry Martin</strong>
+          <span class="cn-name" lang="zh">甘坤同</span>
+          <span class="cn-roman">· Gan Kun Tong</span><br>
           &amp; <strong>Ibu Lusiana</strong>
         </p>
+      </div>
+    </div>
+    <div class="portrait-carousel reveal">
+      <div class="carousel-track-wrap">
+        <div class="carousel-track" data-carousel data-dir="right">
+          <div class="carousel-item"><img class="ci-photo" src="assets/bride-1.jpg" alt="Gita" loading="lazy" /><div class="ci-glass"></div></div>
+          <div class="carousel-item"><img class="ci-photo" src="assets/bride-2.jpg" alt="Gita" loading="lazy" /><div class="ci-glass"></div></div>
+          <div class="carousel-item"><img class="ci-photo" src="assets/bride-3.jpg" alt="Gita" loading="lazy" /><div class="ci-glass"></div></div>
+          <div class="carousel-item"><img class="ci-photo" src="assets/bride-4.jpg" alt="Gita" loading="lazy" /><div class="ci-glass"></div></div>
+          <div class="carousel-item"><img class="ci-photo" src="assets/bride-5.jpg" alt="Gita" loading="lazy" /><div class="ci-glass"></div></div>
+          <div class="carousel-item"><img class="ci-photo" src="assets/bride-6.jpg" alt="Gita" loading="lazy" /><div class="ci-glass"></div></div>
+          <div class="carousel-item"><img class="ci-photo" src="assets/bride-7.jpg" alt="Gita" loading="lazy" /><div class="ci-glass"></div></div>
+          <div class="carousel-item"><img class="ci-photo" src="assets/bride-8.jpg" alt="Gita" loading="lazy" /><div class="ci-glass"></div></div>
+          <div class="carousel-item"><img class="ci-photo" src="assets/bride-9.jpg" alt="Gita" loading="lazy" /><div class="ci-glass"></div></div>
+        </div>
       </div>
     </div>
   </section>
@@ -1186,14 +1340,14 @@
     <div class="ceremony-grid section-inner">
       <!-- Akad Nikah -->
       <div class="ceremony-card glass reveal-l">
-        <span class="ceremony-num">01 — Akad Nikah</span>
-        <h3 class="ceremony-type">Akad Nikah</h3>
+        <span class="ceremony-num">01 — Akad &amp; Adat</span>
+        <h3 class="ceremony-type">Akad &amp; Acara Adat</h3>
         <div class="ceremony-detail">
           <div class="c-row">
             <span class="c-icon">📅</span>
             <div class="c-text">
               <strong>Jumat, 26 Juni 2026</strong>
-              09.00 – 11.00 WITA
+              07.00 – 18.00 WITA
             </div>
           </div>
           <div class="c-row">
@@ -1265,19 +1419,37 @@
     </div>
 
     <div class="gallery-box glass reveal">
+      <!-- Baris 1 — geser ke KANAN -->
       <div class="carousel-track-wrap">
-        <div class="carousel-track" id="carousel-track">
-          <!-- Items will be duplicated by JS for seamless loop -->
-          <div class="carousel-item"><img class="ci-photo" src="assets/gallery-1.jpg" alt="Richard & Gita" loading="lazy" /><div class="ci-glass"></div><div class="ci-overlay">Our Moments</div></div>
-          <div class="carousel-item"><img class="ci-photo" src="assets/gallery-2.jpg" alt="Richard & Gita" loading="lazy" /><div class="ci-glass"></div><div class="ci-overlay">Our Moments</div></div>
-          <div class="carousel-item"><img class="ci-photo" src="assets/gallery-3.jpg" alt="Richard & Gita" loading="lazy" /><div class="ci-glass"></div><div class="ci-overlay">Our Moments</div></div>
-          <div class="carousel-item"><img class="ci-photo" src="assets/gallery-4.jpg" alt="Richard & Gita" loading="lazy" /><div class="ci-glass"></div><div class="ci-overlay">Our Moments</div></div>
-          <div class="carousel-item"><img class="ci-photo" src="assets/gallery-5.jpg" alt="Richard & Gita" loading="lazy" /><div class="ci-glass"></div><div class="ci-overlay">Our Moments</div></div>
-          <div class="carousel-item"><img class="ci-photo" src="assets/gallery-6.jpg" alt="Richard & Gita" loading="lazy" /><div class="ci-glass"></div><div class="ci-overlay">Our Moments</div></div>
-          <div class="carousel-item"><img class="ci-photo" src="assets/gallery-7.jpg" alt="Richard & Gita" loading="lazy" /><div class="ci-glass"></div><div class="ci-overlay">Our Moments</div></div>
-          <div class="carousel-item"><img class="ci-photo" src="assets/gallery-8.jpg" alt="Richard & Gita" loading="lazy" /><div class="ci-glass"></div><div class="ci-overlay">Our Moments</div></div>
-          <div class="carousel-item"><img class="ci-photo" src="assets/gallery-9.jpg" alt="Richard & Gita" loading="lazy" /><div class="ci-glass"></div><div class="ci-overlay">Our Moments</div></div>
-          <div class="carousel-item"><img class="ci-photo" src="assets/gallery-10.jpg" alt="Richard & Gita" loading="lazy" /><div class="ci-glass"></div><div class="ci-overlay">Our Moments</div></div>
+        <div class="carousel-track" data-carousel data-dir="right">
+          <div class="carousel-item"><img class="ci-photo" src="assets/together-1.jpg" alt="Richard & Gita" loading="lazy" /><div class="ci-glass"></div><div class="ci-overlay">Our Moments</div></div>
+          <div class="carousel-item"><img class="ci-photo" src="assets/together-2.jpg" alt="Richard & Gita" loading="lazy" /><div class="ci-glass"></div><div class="ci-overlay">Our Moments</div></div>
+          <div class="carousel-item"><img class="ci-photo" src="assets/together-3.jpg" alt="Richard & Gita" loading="lazy" /><div class="ci-glass"></div><div class="ci-overlay">Our Moments</div></div>
+          <div class="carousel-item"><img class="ci-photo" src="assets/together-4.jpg" alt="Richard & Gita" loading="lazy" /><div class="ci-glass"></div><div class="ci-overlay">Our Moments</div></div>
+          <div class="carousel-item"><img class="ci-photo" src="assets/together-5.jpg" alt="Richard & Gita" loading="lazy" /><div class="ci-glass"></div><div class="ci-overlay">Our Moments</div></div>
+          <div class="carousel-item"><img class="ci-photo" src="assets/together-6.jpg" alt="Richard & Gita" loading="lazy" /><div class="ci-glass"></div><div class="ci-overlay">Our Moments</div></div>
+        </div>
+      </div>
+      <!-- Baris 2 — geser ke KIRI -->
+      <div class="carousel-track-wrap">
+        <div class="carousel-track" data-carousel data-dir="left">
+          <div class="carousel-item"><img class="ci-photo" src="assets/together-7.jpg" alt="Richard & Gita" loading="lazy" /><div class="ci-glass"></div><div class="ci-overlay">Our Moments</div></div>
+          <div class="carousel-item"><img class="ci-photo" src="assets/together-8.jpg" alt="Richard & Gita" loading="lazy" /><div class="ci-glass"></div><div class="ci-overlay">Our Moments</div></div>
+          <div class="carousel-item"><img class="ci-photo" src="assets/together-9.jpg" alt="Richard & Gita" loading="lazy" /><div class="ci-glass"></div><div class="ci-overlay">Our Moments</div></div>
+          <div class="carousel-item"><img class="ci-photo" src="assets/together-10.jpg" alt="Richard & Gita" loading="lazy" /><div class="ci-glass"></div><div class="ci-overlay">Our Moments</div></div>
+          <div class="carousel-item"><img class="ci-photo" src="assets/together-11.jpg" alt="Richard & Gita" loading="lazy" /><div class="ci-glass"></div><div class="ci-overlay">Our Moments</div></div>
+          <div class="carousel-item"><img class="ci-photo" src="assets/together-12.jpg" alt="Richard & Gita" loading="lazy" /><div class="ci-glass"></div><div class="ci-overlay">Our Moments</div></div>
+        </div>
+      </div>
+      <!-- Baris 3 — geser ke KANAN -->
+      <div class="carousel-track-wrap">
+        <div class="carousel-track" data-carousel data-dir="right">
+          <div class="carousel-item"><img class="ci-photo" src="assets/together-13.jpg" alt="Richard & Gita" loading="lazy" /><div class="ci-glass"></div><div class="ci-overlay">Our Moments</div></div>
+          <div class="carousel-item"><img class="ci-photo" src="assets/together-14.jpg" alt="Richard & Gita" loading="lazy" /><div class="ci-glass"></div><div class="ci-overlay">Our Moments</div></div>
+          <div class="carousel-item"><img class="ci-photo" src="assets/together-15.jpg" alt="Richard & Gita" loading="lazy" /><div class="ci-glass"></div><div class="ci-overlay">Our Moments</div></div>
+          <div class="carousel-item"><img class="ci-photo" src="assets/together-16.jpg" alt="Richard & Gita" loading="lazy" /><div class="ci-glass"></div><div class="ci-overlay">Our Moments</div></div>
+          <div class="carousel-item"><img class="ci-photo" src="assets/together-17.jpg" alt="Richard & Gita" loading="lazy" /><div class="ci-glass"></div><div class="ci-overlay">Our Moments</div></div>
+          <div class="carousel-item"><img class="ci-photo" src="assets/together-18.jpg" alt="Richard & Gita" loading="lazy" /><div class="ci-glass"></div><div class="ci-overlay">Our Moments</div></div>
         </div>
       </div>
     </div>
@@ -1369,6 +1541,42 @@
     </div>
   </section>
 
+  <!-- ── UCAPAN / LEAVE A MESSAGE ── -->
+  <section class="wishes" id="ucapan">
+    <div class="wishes-header section-inner">
+      <span class="label reveal">Ucapan &amp; Doa</span>
+      <h2 class="title reveal" style="text-align:center;">Leave a Message</h2>
+      <div class="divider"></div>
+    </div>
+
+    <div class="wish-wrap">
+      <form class="wish-form glass reveal" id="wish-form" onsubmit="submitWish(event)">
+        <div class="field">
+          <label>Nama</label>
+          <input type="text" id="wish-name" placeholder="Nama Anda" required maxlength="40" />
+        </div>
+        <div class="field">
+          <label>Kehadiran</label>
+          <select id="wish-hadir">
+            <option value="Akan Hadir">Akan Hadir</option>
+            <option value="Tidak Hadir">Tidak Hadir</option>
+            <option value="Masih Ragu">Masih Ragu</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Ucapan &amp; Doa</label>
+          <textarea id="wish-msg" rows="3" placeholder="Tulis ucapan &amp; doa untuk kedua mempelai…" required maxlength="500"></textarea>
+        </div>
+        <button type="submit" class="submit-btn">Kirim Ucapan ✦</button>
+      </form>
+
+      <p class="wish-count" id="wish-count"></p>
+      <div class="wish-list" id="wish-list">
+        <p class="wish-loading">Memuat ucapan…</p>
+      </div>
+    </div>
+  </section>
+
   <!-- ── CLOSING ── -->
   <section class="closing">
     <div class="reveal">
@@ -1379,7 +1587,7 @@
         Terima kasih atas doa dan kehadiran Anda.<br>
         Semoga kebahagiaan, cinta, dan kemakmuran<br>selalu menyertai kita semua.
       </p>
-      <p class="closing-date">26 &amp; 28 Juni 2026 · Balikpapan, Indonesia</p>
+      <p class="closing-date">26 &amp; 28 Juni 2026 · Samarinda &amp; Balikpapan, Indonesia</p>
     </div>
   </section>
 
@@ -1616,59 +1824,207 @@
     }, 600);
   }
 
-  /* ── CAROUSEL — JS infinite scroll ── */
-  let _carouselPos  = 0;
-  let _carouselPaused = false;
-  let _carouselSpeed  = isLowEnd ? 0.6 : 1.0; // px per frame
-  let _halfWidth = 0;
-  let _carouselTrack = null;
+  /* ── UCAPAN / LEAVE A MESSAGE → GOOGLE SHEETS (tab "Ucapan") ── */
+  let _wishes = [];
+
+  function escapeHtml(s) {
+    return String(s == null ? '' : s).replace(/[&<>"']/g, c =>
+      ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
+  }
+
+  function wishCard(w) {
+    const name = (w.name || 'Anonim').toString().trim() || 'Anonim';
+    const initial = name.charAt(0).toUpperCase();
+    const h = (w.hadir || '').toString().toLowerCase();
+    let cls = 'ragu';
+    if (h.indexOf('tidak') > -1) cls = 'tidak';
+    else if (h.indexOf('hadir') > -1) cls = 'hadir';
+    const badge = w.hadir ? `<span class="wish-badge ${cls}">${escapeHtml(w.hadir)}</span>` : '';
+    const time  = w.timestamp ? `<span class="wish-time">${escapeHtml(w.timestamp)}</span>` : '';
+    return `<div class="wish-card">
+        <div class="wish-top">
+          <div class="wish-avatar">${escapeHtml(initial)}</div>
+          <span class="wish-name">${escapeHtml(name)}</span>
+          ${badge}${time}
+        </div>
+        <div class="wish-text">${escapeHtml(w.message)}</div>
+      </div>`;
+  }
+
+  function renderWishes() {
+    const list = document.getElementById('wish-list');
+    const cnt  = document.getElementById('wish-count');
+    if (!list) return;
+    if (!_wishes.length) {
+      _stopWishScroll();
+      list.classList.remove('marquee');
+      list.innerHTML = '<p class="wish-empty">Jadilah yang pertama memberi ucapan ✦</p>';
+      if (cnt) cnt.textContent = '';
+      return;
+    }
+    if (cnt) cnt.textContent = _wishes.length + ' Ucapan';
+
+    const cards = _wishes.map(wishCard).join('');
+    const marquee = _wishes.length > 5 && !isLowEnd;
+    list.classList.toggle('marquee', marquee);
+
+    if (marquee) {
+      // duplikat isi untuk loop mulus
+      list.innerHTML = '<div class="wish-track" id="wish-track">' + cards + cards + '</div>';
+      _startWishScroll();
+    } else {
+      _stopWishScroll();
+      list.innerHTML = '<div class="wish-track">' + cards + '</div>';
+    }
+  }
+
+  /* ── endless vertical auto-scroll untuk ucapan ── */
+  let _wishRAF = null, _wishPos = 0, _wishPaused = false, _wishHoverBound = false;
+
+  function _bindWishHover() {
+    if (_wishHoverBound) return;
+    const list = document.getElementById('wish-list');
+    if (!list) return;
+    const pause  = () => { _wishPaused = true; };
+    const resume = () => { _wishPaused = false; };
+    list.addEventListener('mouseenter', pause);
+    list.addEventListener('mouseleave', resume);
+    list.addEventListener('touchstart', pause,  { passive: true });
+    list.addEventListener('touchend',   resume);
+    _wishHoverBound = true;
+  }
+
+  function _startWishScroll() {
+    _stopWishScroll();
+    _bindWishHover();
+    const track = document.getElementById('wish-track');
+    if (!track) return;
+    _wishPos = 0;
+    const speed = isLowEnd ? 0.2 : 0.35; // px per frame
+    const tick = () => {
+      const half = track.scrollHeight / 2;
+      if (half > 0 && !_wishPaused) {
+        _wishPos += speed;
+        if (_wishPos >= half) _wishPos -= half;
+        track.style.transform = 'translateY(' + (-_wishPos) + 'px)';
+      }
+      _wishRAF = requestAnimationFrame(tick);
+    };
+    _wishRAF = requestAnimationFrame(tick);
+  }
+
+  function _stopWishScroll() {
+    if (_wishRAF) { cancelAnimationFrame(_wishRAF); _wishRAF = null; }
+    _wishPos = 0;
+  }
+
+  function loadWishes() {
+    if (!document.getElementById('wish-list')) return;
+    if (SHEET_URL === 'PASTE_YOUR_GOOGLE_SCRIPT_URL_HERE') { _wishes = []; renderWishes(); return; }
+    fetch(SHEET_URL + '?action=list', { method: 'GET' })
+      .then(r => r.json())
+      .then(d => { _wishes = Array.isArray(d.ucapan) ? d.ucapan.slice().reverse() : []; renderWishes(); })
+      .catch(() => { renderWishes(); });
+  }
+
+  function submitWish(e) {
+    e.preventDefault();
+    const btn   = e.target.querySelector('.submit-btn');
+    const name  = document.getElementById('wish-name').value.trim();
+    const hadir = document.getElementById('wish-hadir').value;
+    const msg   = document.getElementById('wish-msg').value.trim();
+    if (!name || !msg) return;
+
+    btn.textContent = 'Mengirim…';
+    btn.disabled = true;
+
+    const ts = new Date().toLocaleString('id-ID', { timeZone: 'Asia/Makassar' });
+    const payload = { type: 'ucapan', timestamp: ts, name, hadir, message: msg };
+
+    if (SHEET_URL !== 'PASTE_YOUR_GOOGLE_SCRIPT_URL_HERE') {
+      fetch(SHEET_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      }).catch(() => {});
+    }
+
+    // tampilkan langsung (optimistic) di paling atas
+    _wishes.unshift({ name, hadir, message: msg, timestamp: ts });
+    renderWishes();
+    e.target.reset();
+
+    setTimeout(() => { btn.textContent = 'Kirim Ucapan ✦'; btn.disabled = false; }, 900);
+  }
+
+  window.addEventListener('load', loadWishes);
+
+  /* ── CAROUSEL — multi-track, arah berlawanan, JS infinite scroll ── */
+  const _carouselSpeed = isLowEnd ? 0.25 : 0.4; // px per frame
+  const _carousels = [];
 
   function initCarousel() {
-    _carouselTrack = document.getElementById('carousel-track');
-    if (!_carouselTrack) return;
+    document.querySelectorAll('[data-carousel]').forEach(track => {
+      const dir = track.dataset.dir === 'right' ? 'right' : 'left';
 
-    // Kumpulkan src original sebelum duplikat
-    const origItems = Array.from(_carouselTrack.querySelectorAll('.carousel-item'));
-    const imgSrcs = origItems
-      .map(item => { const img = item.querySelector('img.ci-photo'); return img ? img.src : null; })
-      .filter(Boolean);
+      // Kumpulkan src original sebelum duplikat
+      const imgSrcs = Array.from(track.querySelectorAll('.carousel-item'))
+        .map(item => { const img = item.querySelector('img.ci-photo'); return img ? img.src : null; })
+        .filter(Boolean);
 
-    // Duplikat track untuk seamless loop
-    const clone = _carouselTrack.innerHTML;
-    _carouselTrack.innerHTML = clone + clone;
+      // Duplikat untuk seamless loop
+      track.innerHTML = track.innerHTML + track.innerHTML;
 
-    // Hitung half width setelah render (tunggu layout)
-    requestAnimationFrame(() => {
-      _halfWidth = _carouselTrack.scrollWidth / 2;
+      const state = {
+        track, dir, imgSrcs,
+        pos: 0, half: 0, paused: false,
+      };
 
-      // Attach click handlers ke semua items (termasuk duplikat)
-      _carouselTrack.querySelectorAll('.carousel-item').forEach((item, idx) => {
-        item.addEventListener('click', () => {
-          const realIdx = idx % imgSrcs.length;
-          openLightbox(realIdx, imgSrcs);
-        });
+      track.querySelectorAll('.carousel-item').forEach((item, idx) => {
+        item.addEventListener('click', () => openLightbox(idx % imgSrcs.length, imgSrcs));
       });
+      track.addEventListener('mouseenter', () => { state.paused = true; });
+      track.addEventListener('mouseleave', () => { state.paused = false; });
 
-      // Hover pause
-      _carouselTrack.addEventListener('mouseenter', () => { _carouselPaused = true; });
-      _carouselTrack.addEventListener('mouseleave', () => { _carouselPaused = false; });
+      _carousels.push(state);
+    });
 
-      // Mulai animasi
+    requestAnimationFrame(() => {
+      _carousels.forEach(s => {
+        s.half = s.track.scrollWidth / 2;
+        // mulai posisi: arah kanan mulai dari ujung biar gesernya kelihatan ke kanan
+        s.pos = s.dir === 'right' ? s.half : 0;
+      });
       carouselTick();
     });
   }
 
   function carouselTick() {
-    if (!_carouselPaused) {
-      _carouselPos += _carouselSpeed;
-      // Reset ke awal ketika sudah setengah (seamless)
-      if (_carouselPos >= _halfWidth) _carouselPos = 0;
-      _carouselTrack.style.transform = `translateX(-${_carouselPos}px)`;
-    }
+    _carousels.forEach(s => {
+      if (s.paused || !s.half) return;
+      if (s.dir === 'right') {
+        s.pos -= _carouselSpeed;
+        if (s.pos <= 0) s.pos = s.half;
+      } else {
+        s.pos += _carouselSpeed;
+        if (s.pos >= s.half) s.pos = 0;
+      }
+      s.track.style.transform = `translateX(-${s.pos}px)`;
+    });
     requestAnimationFrame(carouselTick);
   }
 
   window.addEventListener('load', initCarousel);
+
+  /* ── MINI-GALLERY portrait → lightbox ── */
+  document.querySelectorAll('[data-gallery]').forEach(gal => {
+    const items = Array.from(gal.querySelectorAll('.pg-item img'));
+    const srcs = items.map(img => img.src);
+    items.forEach((img, idx) => {
+      img.parentElement.addEventListener('click', () => openLightbox(idx, srcs));
+    });
+  });
 
   /* ── LIGHTBOX ── */
   let _lbSrcs = [], _lbIdx = 0;
