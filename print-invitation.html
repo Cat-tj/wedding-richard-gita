@@ -59,12 +59,19 @@
 
   .stack{position:relative; z-index:2; display:flex; flex-direction:column; align-items:center; height:100%; width:100%;}
 
+  .crest{ display:flex; align-items:center; justify-content:center; gap:2.5mm; margin-bottom:3mm; }
+  .dragon{
+    width:13mm; height:13mm; flex:0 0 13mm;
+    filter:grayscale(1) sepia(1) saturate(6) hue-rotate(-12deg) brightness(1.08) contrast(1.05)
+           drop-shadow(0 .4mm .6mm rgba(0,0,0,.3));
+  }
+  .dragon.left{ transform:scaleX(-1); }
   .xi-badge{
-    width:12mm; height:12mm; border-radius:50%;
+    width:12mm; height:12mm; border-radius:50%; flex:0 0 12mm;
     display:flex; align-items:center; justify-content:center;
     font-family:'Noto Serif SC',serif; font-weight:700; font-size:14pt; color:var(--red);
     background:radial-gradient(circle at 34% 30%,#fff0a0 0%,#e5c22a 32%,#b8860b 70%,#7a5a00 100%);
-    border:1px solid rgba(122,90,0,.6); box-shadow:0 2mm 5mm rgba(0,0,0,.35); margin-bottom:3mm;
+    border:1px solid rgba(122,90,0,.6); box-shadow:0 2mm 5mm rgba(0,0,0,.35);
   }
   .invite-label{font-size:7pt; letter-spacing:.36em; text-transform:uppercase; color:rgba(251,244,230,.72); margin-bottom:2mm;}
   .names{font-family:'Playfair Display',serif; font-weight:600; font-size:23pt; line-height:1.02; color:#fff;}
@@ -79,6 +86,7 @@
   .parents .p-block{margin-bottom:2.5mm;}
   .parents .role{font-size:6.2pt; letter-spacing:.24em; text-transform:uppercase; color:var(--gold); display:block; margin-bottom:.4mm;}
   .parents strong{color:#fff; font-weight:600; font-size:7.8pt;}
+  .han-sm{font-family:'Noto Serif SC',serif; color:var(--gold); font-size:7.6pt; white-space:nowrap;}
 
   .events{width:100%; display:flex; flex-direction:column; gap:3mm; margin:3mm 0;}
   .event{ border:1px solid rgba(212,175,55,.4); border-radius:2.5mm; padding:2.8mm 3mm; background:rgba(0,0,0,.16); }
@@ -116,7 +124,11 @@
     <div class="content-col">
       <span class="corner tr"></span><span class="corner br"></span>
       <div class="stack">
-        <div class="xi-badge">囍</div>
+        <div class="crest">
+          <img class="dragon left" src="assets/dragon.svg" alt="" />
+          <div class="xi-badge">囍</div>
+          <img class="dragon right" src="assets/dragon.svg" alt="" />
+        </div>
         <p class="invite-label">The Wedding Of</p>
 
         <div class="names">
@@ -136,11 +148,11 @@
         <div class="parents">
           <div class="p-block">
             <span class="role">Mempelai Pria</span>
-            Putra dari <strong>Bp. Jack Chandra Wijaya</strong> &amp; <strong>Ibu Kasmah</strong>
+            Putra dari <strong>Bp. Jack Chandra Wijaya</strong> <span class="han-sm">张振强</span> &amp; <strong>Ibu Kasmah</strong>
           </div>
           <div class="p-block">
             <span class="role">Mempelai Wanita</span>
-            Putri dari <strong>Bp. Alm. Andry Martin</strong> &amp; <strong>Ibu Lusiana</strong>
+            Putri dari <strong>Bp. Alm. Andry Martin</strong> <span class="han-sm">甘坤同</span> &amp; <strong>Ibu Lusiana</strong>
           </div>
         </div>
 
