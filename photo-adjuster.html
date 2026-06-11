@@ -14,14 +14,15 @@
   .panel{background:#111827;border:1px solid #2d2d4e;border-radius:12px;padding:20px;min-width:280px;}
   .panel h2{font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:#d4af37;margin-bottom:14px;}
 
-  /* frame preview */
-  .frame-wrap{position:relative;overflow:hidden;cursor:grab;user-select:none;border:2px solid #d4af37;border-radius:4px;background:#6f0a18;}
+  /* frame preview — sama persis rasio dengan print HTML */
+  .frame-wrap{position:relative;overflow:hidden;cursor:grab;user-select:none;border:2px solid #d4af37;border-radius:4px;background:#6f0a18;flex-shrink:0;}
   .frame-wrap:active{cursor:grabbing;}
-  .frame-wrap img{position:absolute;top:0;left:0;transform-origin:0 0;pointer-events:none;display:block;}
+  /* img pakai object-fit:cover + object-position, persis seperti di print */
+  .frame-wrap img{width:100%;height:100%;object-fit:cover;display:block;pointer-events:none;}
 
-  /* cover frame: 148:98 ratio → 370×245px */
+  /* cover frame: 148:98 mm → 370×245 px */
   .cover-frame{width:370px;height:245px;}
-  /* back photo col: 58:210 ratio → 160×580px */
+  /* back photo col: 58:210 mm → 160×580 px */
   .back-frame{width:160px;height:580px;}
 
   .controls{margin-top:14px;display:flex;flex-direction:column;gap:10px;}
@@ -30,73 +31,76 @@
   input[type=range]{flex:1;accent-color:#d4af37;}
   .val{font-size:12px;color:#d4af37;width:44px;text-align:right;flex-shrink:0;}
 
-  .upload-btn{display:inline-block;margin-top:4px;padding:8px 14px;background:#9e0f22;color:#fff;border-radius:6px;font-size:12px;cursor:pointer;border:none;}
+  .upload-btn{display:inline-block;padding:8px 14px;background:#9e0f22;color:#fff;border-radius:6px;font-size:12px;cursor:pointer;border:none;}
   .upload-btn:hover{background:#c8202f;}
   input[type=file]{display:none;}
 
+  .hint{font-size:11px;color:#666;margin-top:6px;}
+
   .css-out{margin-top:16px;}
   .css-out label{font-size:11px;color:#888;display:block;margin-bottom:4px;}
-  .css-box{background:#0d1117;border:1px solid #2d2d4e;border-radius:6px;padding:10px;font-family:monospace;font-size:11px;color:#7ee787;white-space:pre-wrap;word-break:break-all;line-height:1.6;}
+  .css-box{background:#0d1117;border:1px solid #2d2d4e;border-radius:6px;padding:10px;font-family:monospace;font-size:11px;color:#7ee787;white-space:pre-wrap;word-break:break-all;line-height:1.7;}
   .copy-btn{margin-top:6px;padding:6px 12px;background:#21262d;color:#d4af37;border:1px solid #d4af37;border-radius:6px;font-size:11px;cursor:pointer;}
   .copy-btn:hover{background:#d4af37;color:#111;}
   .copy-btn.ok{background:#2ea043;border-color:#2ea043;color:#fff;}
-
-  .reset-btn{padding:6px 12px;background:#21262d;color:#aaa;border:1px solid #444;border-radius:6px;font-size:11px;cursor:pointer;}
+  .reset-btn{padding:6px 12px;background:#21262d;color:#aaa;border:1px solid #444;border-radius:6px;font-size:11px;cursor:pointer;margin-left:6px;}
   .reset-btn:hover{border-color:#d4af37;color:#d4af37;}
 </style>
 </head>
 <body>
 
 <h1>🖼 Photo Adjuster — Print Card</h1>
-<p class="sub">Upload foto → drag untuk geser → slider untuk zoom → copy CSS → paste ke print-invitation.html</p>
+<p class="sub">Upload foto → <b>drag</b> untuk geser · <b>scroll</b> untuk zoom → <b>Copy CSS</b> → paste ke print-invitation.html</p>
 
 <div class="panels">
 
   <!-- COVER DEPAN -->
-  <div class="panel" id="panel-cover">
+  <div class="panel">
     <h2>Cover Depan (148 × 98 mm)</h2>
     <div class="frame-wrap cover-frame" id="frame-cover">
-      <img id="img-cover" src="" alt="" style="display:none"/>
+      <img id="img-cover" src="" alt="" style="display:none;object-position:50% 50%;"/>
     </div>
     <div class="controls">
       <div class="ctrl-row">
         <label>Zoom</label>
-        <input type="range" id="scale-cover" min="0.5" max="5" step="0.05" value="1"/>
+        <input type="range" id="scale-cover" min="1" max="5" step="0.05" value="1"/>
         <span class="val" id="sv-cover">1.00×</span>
       </div>
       <div class="ctrl-row">
         <button class="upload-btn" onclick="document.getElementById('file-cover').click()">📂 Upload Foto</button>
-        <input type="file" id="file-cover" accept="image/*"/>
+        <input type="file" id="file-cover" accept="image/*" onchange="loadImg('cover',this)"/>
         <button class="reset-btn" onclick="resetPanel('cover')">Reset</button>
       </div>
+      <p class="hint">💡 Drag geser · scroll wheel zoom · CSS langsung siap paste</p>
     </div>
     <div class="css-out">
-      <label>CSS (copy ke .cover-photo img)</label>
+      <label>CSS — paste ke <code>.cover-photo img { … }</code></label>
       <div class="css-box" id="css-cover">— upload foto dulu —</div>
       <button class="copy-btn" id="cp-cover" onclick="copyCSS('cover')">Copy CSS</button>
     </div>
   </div>
 
   <!-- FOTO BELAKANG -->
-  <div class="panel" id="panel-back">
+  <div class="panel">
     <h2>Foto Belakang / Kolom Kiri (58 × 210 mm)</h2>
     <div class="frame-wrap back-frame" id="frame-back">
-      <img id="img-back" src="" alt="" style="display:none"/>
+      <img id="img-back" src="" alt="" style="display:none;object-position:50% 50%;"/>
     </div>
     <div class="controls">
       <div class="ctrl-row">
         <label>Zoom</label>
-        <input type="range" id="scale-back" min="0.5" max="5" step="0.05" value="1"/>
+        <input type="range" id="scale-back" min="1" max="5" step="0.05" value="1"/>
         <span class="val" id="sv-back">1.00×</span>
       </div>
       <div class="ctrl-row">
         <button class="upload-btn" onclick="document.getElementById('file-back').click()">📂 Upload Foto</button>
-        <input type="file" id="file-back" accept="image/*"/>
+        <input type="file" id="file-back" accept="image/*" onchange="loadImg('back',this)"/>
         <button class="reset-btn" onclick="resetPanel('back')">Reset</button>
       </div>
+      <p class="hint">💡 Drag geser · scroll wheel zoom · CSS langsung siap paste</p>
     </div>
     <div class="css-out">
-      <label>CSS (copy ke .photo-col img)</label>
+      <label>CSS — paste ke <code>.photo-col img { … }</code></label>
       <div class="css-box" id="css-back">— upload foto dulu —</div>
       <button class="copy-btn" id="cp-back" onclick="copyCSS('back')">Copy CSS</button>
     </div>
@@ -105,150 +109,127 @@
 </div>
 
 <script>
-const panels = {};
+/*
+  Pendekatan: gunakan object-fit:cover + object-position di img preview,
+  persis seperti di print HTML. Drag = geser object-position X/Y.
+  Scroll/slider = extra zoom via transform:scale (origin = object-position point).
+  Output CSS langsung kompatibel untuk di-paste.
+*/
 
-function initPanel(id, frameW, frameH) {
-  const frame = document.getElementById('frame-' + id);
-  const img   = document.getElementById('img-' + id);
-  const scaleEl = document.getElementById('scale-' + id);
-  const scaleVal = document.getElementById('sv-' + id);
-  const fileEl = document.getElementById('file-' + id);
+const state = {
+  cover: { px: 50, py: 50, scale: 1 },
+  back:  { px: 50, py: 50, scale: 1 }
+};
 
-  const state = { scale: 1, x: 0, y: 0, imgW: 0, imgH: 0, dragging: false, startX: 0, startY: 0, ox: 0, oy: 0 };
-  panels[id] = state;
-
-  fileEl.addEventListener('change', e => {
-    const f = e.target.files[0]; if (!f) return;
-    const url = URL.createObjectURL(f);
-    img.onload = () => {
-      state.imgW = img.naturalWidth;
-      state.imgH = img.naturalHeight;
-      // auto-fit: scale so image covers frame
-      const scaleX = frameW / state.imgW;
-      const scaleY = frameH / state.imgH;
-      state.scale = Math.max(scaleX, scaleY);
-      state.x = (frameW - state.imgW * state.scale) / 2;
-      state.y = (frameH - state.imgH * state.scale) / 2;
-      scaleEl.value = state.scale.toFixed(2);
-      scaleEl.min = Math.max(scaleX, scaleY).toFixed(2); // min = cover fit
-      img.style.display = 'block';
-      clamp(state, frameW, frameH);
-      apply(id, state, frameW, frameH);
-    };
-    img.src = url;
-  });
-
-  scaleEl.addEventListener('input', () => {
-    state.scale = parseFloat(scaleEl.value);
-    scaleVal.textContent = state.scale.toFixed(2) + '×';
-    clamp(state, frameW, frameH);
-    apply(id, state, frameW, frameH);
-  });
-
-  // drag
-  frame.addEventListener('mousedown', e => {
-    if (!state.imgW) return;
-    state.dragging = true;
-    state.startX = e.clientX; state.startY = e.clientY;
-    state.ox = state.x; state.oy = state.y;
-    e.preventDefault();
-  });
-  window.addEventListener('mousemove', e => {
-    if (!state.dragging) return;
-    state.x = state.ox + (e.clientX - state.startX);
-    state.y = state.oy + (e.clientY - state.startY);
-    clamp(state, frameW, frameH);
-    apply(id, state, frameW, frameH);
-  });
-  window.addEventListener('mouseup', () => { state.dragging = false; });
-
-  // touch
-  frame.addEventListener('touchstart', e => {
-    if (!state.imgW) return;
-    state.dragging = true;
-    state.startX = e.touches[0].clientX; state.startY = e.touches[0].clientY;
-    state.ox = state.x; state.oy = state.y;
-    e.preventDefault();
-  }, {passive:false});
-  window.addEventListener('touchmove', e => {
-    if (!state.dragging) return;
-    state.x = state.ox + (e.touches[0].clientX - state.startX);
-    state.y = state.oy + (e.touches[0].clientY - state.startY);
-    clamp(state, frameW, frameH);
-    apply(id, state, frameW, frameH);
-  }, {passive:false});
-  window.addEventListener('touchend', () => { state.dragging = false; });
-}
-
-function clamp(state, fw, fh) {
-  const iw = state.imgW * state.scale;
-  const ih = state.imgH * state.scale;
-  state.x = Math.min(0, Math.max(fw - iw, state.x));
-  state.y = Math.min(0, Math.max(fh - ih, state.y));
-}
-
-function apply(id, state, fw, fh) {
+function loadImg(id, input) {
+  const f = input.files[0]; if (!f) return;
   const img = document.getElementById('img-' + id);
-  const scaleVal = document.getElementById('sv-' + id);
-  img.style.transform = `scale(${state.scale})`;
-  img.style.transformOrigin = '0 0';
-  img.style.left = state.x + 'px';
-  img.style.top  = state.y + 'px';
-  img.style.width  = state.imgW + 'px';
-  img.style.height = state.imgH + 'px';
-  scaleVal.textContent = state.scale.toFixed(2) + '×';
-  updateCSS(id, state, fw, fh);
+  img.src = URL.createObjectURL(f);
+  img.style.display = 'block';
+  state[id] = { px: 50, py: 50, scale: 1 };
+  document.getElementById('scale-' + id).value = 1;
+  applyState(id);
 }
 
-function updateCSS(id, state, fw, fh) {
-  const box = document.getElementById('css-' + id);
-  if (!state.imgW) return;
-
-  // convert pixel offset → object-position percentage
-  const iw = state.imgW * state.scale;
-  const ih = state.imgH * state.scale;
-  const extraW = iw - fw;
-  const extraH = ih - fh;
-  const px = extraW <= 0 ? 50 : ((-state.x) / extraW * 100);
-  const py = extraH <= 0 ? 50 : ((-state.y) / extraH * 100);
-  const pxC = px.toFixed(1);
-  const pyC = py.toFixed(1);
-  const sc  = state.scale.toFixed(2);
-
-  let css;
-  if (id === 'cover') {
-    css = `object-fit: cover;\nobject-position: ${pxC}% ${pyC}%;\ntransform: scale(${sc});\ntransform-origin: ${pxC}% ${pyC}%;`;
+function applyState(id) {
+  const s = state[id];
+  const img = document.getElementById('img-' + id);
+  const scaleEl = document.getElementById('scale-' + id);
+  s.scale = parseFloat(scaleEl.value);
+  document.getElementById('sv-' + id).textContent = s.scale.toFixed(2) + '×';
+  img.style.objectPosition = s.px.toFixed(1) + '% ' + s.py.toFixed(1) + '%';
+  if (s.scale !== 1) {
+    img.style.transform = 'scale(' + s.scale.toFixed(2) + ')';
+    img.style.transformOrigin = s.px.toFixed(1) + '% ' + s.py.toFixed(1) + '%';
   } else {
-    css = `object-fit: cover;\nobject-position: ${pxC}% ${pyC}%;\ntransform: scale(${sc});\ntransform-origin: ${pxC}% ${pyC}%;`;
+    img.style.transform = 'none';
+    img.style.transformOrigin = '';
+  }
+  updateCSS(id, s);
+}
+
+function updateCSS(id, s) {
+  const box = document.getElementById('css-' + id);
+  let css;
+  if (s.scale > 1.005) {
+    css = `object-fit: cover;\nobject-position: ${s.px.toFixed(1)}% ${s.py.toFixed(1)}%;\ntransform: scale(${s.scale.toFixed(2)});\ntransform-origin: ${s.px.toFixed(1)}% ${s.py.toFixed(1)}%;`;
+  } else {
+    css = `object-fit: cover;\nobject-position: ${s.px.toFixed(1)}% ${s.py.toFixed(1)}%;`;
   }
   box.textContent = css;
-  box.dataset.css = css;
+}
+
+function resetPanel(id) {
+  state[id] = { px: 50, py: 50, scale: 1 };
+  document.getElementById('scale-' + id).value = 1;
+  applyState(id);
 }
 
 function copyCSS(id) {
   const box = document.getElementById('css-' + id);
   const btn = document.getElementById('cp-' + id);
-  navigator.clipboard.writeText(box.dataset.css || box.textContent).then(() => {
+  navigator.clipboard.writeText(box.textContent).then(() => {
     btn.textContent = '✓ Copied!'; btn.classList.add('ok');
     setTimeout(() => { btn.textContent = 'Copy CSS'; btn.classList.remove('ok'); }, 2000);
   });
 }
 
-function resetPanel(id) {
-  const s = panels[id]; if (!s || !s.imgW) return;
-  const fw = id === 'cover' ? 370 : 160;
-  const fh = id === 'cover' ? 245 : 580;
-  const scaleX = fw / s.imgW, scaleY = fh / s.imgH;
-  s.scale = Math.max(scaleX, scaleY);
-  s.x = (fw - s.imgW * s.scale) / 2;
-  s.y = (fh - s.imgH * s.scale) / 2;
-  document.getElementById('scale-' + id).value = s.scale.toFixed(2);
-  clamp(s, fw, fh);
-  apply(id, s, fw, fh);
-}
+// ---- drag ----
+let drag = null;
 
-initPanel('cover', 370, 245);
-initPanel('back',  160, 580);
+['cover','back'].forEach(id => {
+  const frame = document.getElementById('frame-' + id);
+  const scaleEl = document.getElementById('scale-' + id);
+
+  frame.addEventListener('mousedown', e => {
+    drag = { id, startX: e.clientX, startY: e.clientY, startPx: state[id].px, startPy: state[id].py };
+    e.preventDefault();
+  });
+
+  frame.addEventListener('wheel', e => {
+    e.preventDefault();
+    const s = state[id];
+    const delta = e.deltaY > 0 ? -0.1 : 0.1;
+    s.scale = Math.max(1, Math.min(5, s.scale + delta));
+    scaleEl.value = s.scale.toFixed(2);
+    applyState(id);
+  }, { passive: false });
+
+  scaleEl.addEventListener('input', () => applyState(id));
+
+  // touch drag
+  let touchStart = null;
+  frame.addEventListener('touchstart', e => {
+    touchStart = { id, startX: e.touches[0].clientX, startY: e.touches[0].clientY,
+                   startPx: state[id].px, startPy: state[id].py };
+    e.preventDefault();
+  }, { passive: false });
+  frame.addEventListener('touchmove', e => {
+    if (!touchStart || touchStart.id !== id) return;
+    moveDrag(touchStart, e.touches[0].clientX, e.touches[0].clientY, frame);
+    e.preventDefault();
+  }, { passive: false });
+  frame.addEventListener('touchend', () => { touchStart = null; });
+});
+
+window.addEventListener('mousemove', e => {
+  if (!drag) return;
+  const frame = document.getElementById('frame-' + drag.id);
+  moveDrag(drag, e.clientX, e.clientY, frame);
+});
+window.addEventListener('mouseup', () => { drag = null; });
+
+function moveDrag(d, cx, cy, frame) {
+  const fw = frame.clientWidth;
+  const fh = frame.clientHeight;
+  // sensitivity: how many % per pixel moved (inversely proportional to frame size)
+  const sensitivity = 100 / Math.min(fw, fh) * (1 / state[d.id].scale) * 0.8;
+  const dx = (d.startX - cx) * sensitivity;
+  const dy = (d.startY - cy) * sensitivity;
+  state[d.id].px = Math.max(0, Math.min(100, d.startPx + dx));
+  state[d.id].py = Math.max(0, Math.min(100, d.startPy + dy));
+  applyState(d.id);
+}
 </script>
 </body>
 </html>
