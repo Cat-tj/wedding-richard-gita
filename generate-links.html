@@ -113,6 +113,30 @@
     }
     .wa-copy:hover { background: rgba(37,211,102,.25); }
 
+    /* status sudah terkirim */
+    .entry.sent .link-row { border-color: rgba(37,211,102,.35); background: rgba(37,211,102,.07); }
+    .entry.sent .wa-row { opacity: .65; }
+    .sent-badge { display: none; font-size: 11px; color: #25d366; font-weight: 600; margin-left: 8px; white-space: nowrap; }
+    .entry.sent .sent-badge { display: inline; }
+    .sent-toggle {
+      padding: 6px 14px; font-size: 11px; letter-spacing: .06em;
+      background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.15);
+      border-radius: 20px; color: rgba(250,248,243,.6); cursor: pointer; white-space: nowrap;
+      transition: all .2s;
+    }
+    .sent-toggle:hover { border-color: rgba(212,175,55,.4); color: #d4af37; }
+    .entry.sent .sent-toggle { background: rgba(37,211,102,.12); border-color: rgba(37,211,102,.3); color: #25d366; }
+    .progress-badge {
+      display: inline-block; padding: 4px 14px; margin-top: 12px; margin-left: 8px;
+      background: rgba(37,211,102,.15); border: 1px solid rgba(37,211,102,.3);
+      color: #25d366; border-radius: 20px; font-size: 12px;
+    }
+    .reset-sent {
+      display: inline-block; margin-left: 12px; font-size: 11px; color: rgba(250,248,243,.4);
+      cursor: pointer; text-decoration: underline; vertical-align: middle;
+    }
+    .reset-sent:hover { color: #ff6b7a; }
+
     /* step guide */
     .steps { max-width: 860px; margin-bottom: 32px; }
     .step { display: flex; gap: 16px; margin-bottom: 16px; }
@@ -209,43 +233,97 @@
     return `https://wa.me/?text=${msg}`;
   }
 
+  /* ── status "sudah terkirim" (tersimpan di browser) ── */
+  const SENT_KEY = 'wa-sent-richard-gita';
+  function getSent() { try { return JSON.parse(localStorage.getItem(SENT_KEY)) || {}; } catch (e) { return {}; } }
+  function saveSent(m) { localStorage.setItem(SENT_KEY, JSON.stringify(m)); }
+
+  let _entries = [];
+  let _personalCount = 0, _groupCount = 0;
+
   function generate() {
     const baseUrl = document.getElementById('base-url').value.trim().replace(/\?.*$/, '');
     const personal = readLines('guest-list').map(n => ({ name: n, group: false }));
     const groups   = readLines('group-list').map(n => ({ name: n, group: true }));
-    const entries  = [...personal, ...groups];
-    if (!entries.length) { alert('Masukkan minimal 1 nama tamu atau grup!'); return; }
+    _entries = [...personal, ...groups];
+    _personalCount = personal.length; _groupCount = groups.length;
+    if (!_entries.length) { alert('Masukkan minimal 1 nama tamu atau grup!'); return; }
 
+    const sent = getSent();
     const container = document.getElementById('links-container');
     container.innerHTML = '';
 
-    entries.forEach(({ name, group }) => {
-      const url = `${baseUrl}?to=${encodeURIComponent(name)}`;
-      const waUrl = buildWa(name, url, group);
-      const tag = group
+    _entries.forEach((entry, idx) => {
+      entry.url  = `${baseUrl}?to=${encodeURIComponent(entry.name)}`;
+      entry.wa   = buildWa(entry.name, entry.url, entry.group);
+      entry.sent = !!sent[entry.name];
+
+      const tag = entry.group
         ? `<span style="font-size:9px;letter-spacing:.1em;text-transform:uppercase;padding:2px 8px;border-radius:20px;background:rgba(212,175,55,.18);color:#d4af37;margin-left:8px;">Grup</span>`
         : '';
 
       const row = document.createElement('div');
+      row.className = 'entry';
+      row.dataset.idx = idx;
       row.innerHTML = `
         <div class="link-row">
-          <span class="link-name">${escHtml(name)}${tag}</span>
-          <span class="link-url">${escHtml(url)}</span>
-          <button class="link-copy" onclick="copyLink(this, '${escAttr(url)}')">Copy Link</button>
+          <span class="link-name">${escHtml(entry.name)}${tag}<span class="sent-badge">✓ Terkirim</span></span>
+          <span class="link-url">${escHtml(entry.url)}</span>
+          <button class="link-copy" onclick="copyLink(this, '${escAttr(entry.url)}')">Copy Link</button>
         </div>
         <div class="wa-row">
-          <span class="link-name" style="font-size:12px;min-width:180px;color:rgba(168,255,204,.7)">💬 WA siap kirim</span>
-          <span class="link-url" style="font-size:11px;">${escHtml(name)} — pesan WhatsApp sudah diformat</span>
-          <a href="${waUrl}" target="_blank" class="wa-copy">Kirim WA</a>
+          <span class="link-name" style="font-size:12px;min-width:160px;color:rgba(168,255,204,.7)">💬 WA siap kirim</span>
+          <span class="link-url" style="font-size:11px;">${escHtml(entry.name)} — pesan WhatsApp sudah diformat</span>
+          <button class="sent-toggle"></button>
+          <a href="${entry.wa}" target="_blank" class="wa-copy">Kirim WA</a>
         </div>
       `;
       container.appendChild(row);
+      entry.el = row;
+
+      // klik "Kirim WA" → otomatis tandai terkirim
+      row.querySelector('.wa-copy').addEventListener('click', () => markSent(idx, true));
+      // toggle manual
+      row.querySelector('.sent-toggle').addEventListener('click', () => markSent(idx, !entry.sent));
+
+      applySent(entry);
     });
 
-    const gn = groups.length ? ` (${personal.length} personal · ${groups.length} grup)` : '';
-    document.getElementById('count-info').innerHTML = `<span class="count-badge">Total: ${entries.length} undangan${gn}</span>`;
+    updateProgress();
     document.getElementById('output').style.display = 'block';
     document.getElementById('output').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  function applySent(entry) {
+    entry.el.classList.toggle('sent', entry.sent);
+    entry.el.querySelector('.sent-toggle').textContent = entry.sent ? '↺ Batalkan' : '✓ Tandai terkirim';
+  }
+
+  function markSent(idx, val) {
+    const entry = _entries[idx];
+    if (!entry) return;
+    entry.sent = val;
+    const m = getSent();
+    if (val) m[entry.name] = true; else delete m[entry.name];
+    saveSent(m);
+    applySent(entry);
+    updateProgress();
+  }
+
+  function updateProgress() {
+    const sentCount = _entries.filter(e => e.sent).length;
+    const gn = _groupCount ? ` · ${_personalCount} personal · ${_groupCount} grup` : '';
+    document.getElementById('count-info').innerHTML =
+      `<span class="count-badge">Total: ${_entries.length} undangan${gn}</span>` +
+      `<span class="progress-badge">✓ Terkirim: ${sentCount} / ${_entries.length}</span>` +
+      `<span class="reset-sent" onclick="resetSent()">reset status terkirim</span>`;
+  }
+
+  function resetSent() {
+    if (!confirm('Hapus semua tanda "terkirim"? Daftar tamu tidak terhapus.')) return;
+    saveSent({});
+    _entries.forEach(e => { e.sent = false; applySent(e); });
+    updateProgress();
   }
 
   function copyLink(btn, url) {
