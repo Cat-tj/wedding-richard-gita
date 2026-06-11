@@ -7,17 +7,16 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,500;0,600;1,400;1,500&family=Noto+Serif+SC:wght@500;700&display=swap" rel="stylesheet" />
 <style>
   :root{
-    --red:#9e0f22; --red2:#c8202f; --gold:#d4af37; --gold-d:#a8842a;
-    --cream:#fbf4e6; --ink:#3a1418;
+    --red:#9e0f22; --red2:#c8202f; --gold:#d4af37; --cream:#fbf4e6;
   }
   *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
   body{
-    font-family:'Inter',sans-serif; background:#1d1012; color:var(--ink);
+    font-family:'Inter',sans-serif; background:#1d1012; color:var(--cream);
     display:flex; flex-direction:column; align-items:center;
     padding:30px 16px; -webkit-font-smoothing:antialiased;
   }
 
-  /* ── toolbar (layar saja) ── */
+  /* toolbar (layar saja) */
   .toolbar{
     display:flex; gap:12px; align-items:center; flex-wrap:wrap; justify-content:center;
     margin-bottom:26px; color:#faf3e6;
@@ -30,83 +29,74 @@
     box-shadow:0 8px 26px rgba(200,32,47,.4); transition:transform .2s,box-shadow .2s;
   }
   .btn:hover{transform:translateY(-2px); box-shadow:0 14px 36px rgba(200,32,47,.55);}
-  .btn.alt{background:rgba(212,175,55,.16); color:var(--gold); box-shadow:none; border:1px solid rgba(212,175,55,.4);}
 
-  /* ── kartu A5 ── */
+  /* kartu A5 — 2 kolom */
   .card{
     width:148mm; height:210mm; position:relative; overflow:hidden;
-    background:
-      radial-gradient(130% 80% at 50% -10%, #b3122b 0%, #8e0f22 55%, #6f0a18 100%);
-    color:var(--cream);
-    box-shadow:0 30px 80px rgba(0,0,0,.55);
-    display:flex; flex-direction:column; align-items:center;
-    padding:13mm 12mm 10mm; text-align:center;
+    display:flex; box-shadow:0 30px 80px rgba(0,0,0,.55);
+    background:radial-gradient(130% 90% at 70% -10%, #b3122b 0%, #8e0f22 55%, #6f0a18 100%);
   }
-  /* bingkai emas ganda */
-  .frame{position:absolute; pointer-events:none;}
-  .frame.outer{inset:5mm; border:1.5px solid rgba(212,175,55,.85);}
-  .frame.inner{inset:6.4mm; border:.6px solid rgba(212,175,55,.5);}
-  /* ornamen sudut */
-  .corner{position:absolute; width:13mm; height:13mm; border:2px solid var(--gold); opacity:.9;}
-  .corner.tl{top:7mm;left:7mm;border-right:0;border-bottom:0;}
-  .corner.tr{top:7mm;right:7mm;border-left:0;border-bottom:0;}
-  .corner.bl{bottom:7mm;left:7mm;border-right:0;border-top:0;}
-  .corner.br{bottom:7mm;right:7mm;border-left:0;border-top:0;}
-
-  .inner-wrap{position:relative; z-index:2; display:flex; flex-direction:column; align-items:center; height:100%; width:100%;}
-
-  /* banner foto */
-  .banner{
-    position:relative; width:100%; height:84mm; border-radius:3mm; overflow:hidden;
-    border:1.5px solid rgba(212,175,55,.85); box-shadow:0 4mm 10mm rgba(0,0,0,.4);
+  /* kolom foto kiri */
+  .photo-col{ flex:0 0 56mm; position:relative; }
+  .photo-col img{ width:100%; height:100%; object-fit:cover; object-position:center 30%; display:block; }
+  /* garis emas pembatas + sedikit gelap di tepi */
+  .photo-col::after{
+    content:''; position:absolute; inset:0;
+    box-shadow: inset -2px 0 0 rgba(212,175,55,.9);
+    background:linear-gradient(90deg, rgba(0,0,0,.18), transparent 18%, transparent 86%, rgba(110,10,24,.35));
   }
-  .banner img{width:100%; height:100%; object-fit:cover; object-position:center 28%; display:block;}
-  .banner::after{content:''; position:absolute; inset:0; background:linear-gradient(to bottom, transparent 55%, rgba(110,10,24,.55));}
+
+  /* kolom konten kanan */
+  .content-col{
+    flex:1; position:relative; text-align:center;
+    padding:11mm 9mm 10mm; display:flex; flex-direction:column; align-items:center;
+  }
+  /* bingkai emas di kolom konten */
+  .content-col::before{ content:''; position:absolute; inset:5mm; border:1px solid rgba(212,175,55,.55); pointer-events:none; }
+  .corner{position:absolute; width:9mm; height:9mm; border:1.5px solid var(--gold); pointer-events:none;}
+  .corner.tr{top:6.4mm;right:6.4mm;border-left:0;border-bottom:0;}
+  .corner.br{bottom:6.4mm;right:6.4mm;border-left:0;border-top:0;}
+
+  .stack{position:relative; z-index:2; display:flex; flex-direction:column; align-items:center; height:100%; width:100%;}
+
   .xi-badge{
-    margin-top:-6.5mm; z-index:3;
-    width:13mm; height:13mm; border-radius:50%;
+    width:12mm; height:12mm; border-radius:50%;
     display:flex; align-items:center; justify-content:center;
-    font-family:'Noto Serif SC',serif; font-weight:700; font-size:15pt; color:var(--red);
+    font-family:'Noto Serif SC',serif; font-weight:700; font-size:14pt; color:var(--red);
     background:radial-gradient(circle at 34% 30%,#fff0a0 0%,#e5c22a 32%,#b8860b 70%,#7a5a00 100%);
-    border:1px solid rgba(122,90,0,.6); box-shadow:0 2mm 5mm rgba(0,0,0,.4);
+    border:1px solid rgba(122,90,0,.6); box-shadow:0 2mm 5mm rgba(0,0,0,.35); margin-bottom:3mm;
   }
-  .invite-label{font-size:7pt; letter-spacing:.4em; text-transform:uppercase; color:rgba(251,244,230,.7); margin:1.5mm 0 1mm;}
-  .intro{font-size:7.6pt; color:rgba(251,244,230,.82); line-height:1.5; max-width:96mm; margin-bottom:3mm;}
+  .invite-label{font-size:7pt; letter-spacing:.36em; text-transform:uppercase; color:rgba(251,244,230,.72); margin-bottom:2mm;}
+  .names{font-family:'Playfair Display',serif; font-weight:600; font-size:23pt; line-height:1.02; color:#fff;}
+  .names .amp{display:block; font-style:italic; font-weight:400; font-size:14pt; color:var(--gold); margin:.6mm 0;}
+  .han{font-family:'Noto Serif SC',serif; font-size:9.5pt; color:var(--gold); letter-spacing:.16em; margin-top:2mm;}
 
-  .names{font-family:'Playfair Display',serif; font-weight:600; font-size:26pt; line-height:1; color:#fff;}
-  .names .amp{display:block; font-style:italic; font-weight:400; font-size:15pt; color:var(--gold); margin:.3mm 0;}
-  .han{font-family:'Noto Serif SC',serif; font-size:10pt; color:var(--gold); letter-spacing:.18em; margin-top:1.5mm;}
+  .rule{width:34mm; height:1px; background:linear-gradient(90deg,transparent,var(--gold),transparent); margin:4mm 0;}
 
-  .rule{width:40mm; height:1px; background:linear-gradient(90deg,transparent,var(--gold),transparent); margin:3mm 0;}
+  .intro{font-size:7.4pt; color:rgba(251,244,230,.82); line-height:1.5; margin-bottom:4mm;}
 
-  .parents{display:flex; gap:7mm; justify-content:center; font-size:7.6pt; line-height:1.45; color:rgba(251,244,230,.9);}
-  .parents .p-col{max-width:55mm;}
-  .parents strong{color:#fff; font-weight:600; font-size:8pt;}
-  .parents .role{font-size:6.3pt; letter-spacing:.26em; text-transform:uppercase; color:var(--gold); display:block; margin-bottom:.5mm;}
+  .parents{font-size:7.4pt; line-height:1.4; color:rgba(251,244,230,.9); margin-bottom:1mm;}
+  .parents .p-block{margin-bottom:2.5mm;}
+  .parents .role{font-size:6.2pt; letter-spacing:.24em; text-transform:uppercase; color:var(--gold); display:block; margin-bottom:.4mm;}
+  .parents strong{color:#fff; font-weight:600; font-size:7.8pt;}
 
-  .events{display:flex; gap:5mm; width:100%; justify-content:center; margin:3.5mm 0 3mm;}
-  .event{
-    flex:1; max-width:58mm; border:1px solid rgba(212,175,55,.4); border-radius:3mm;
-    padding:3mm 2.5mm; background:rgba(0,0,0,.14);
-  }
-  .event h3{font-family:'Playfair Display',serif; font-weight:600; font-size:11pt; color:var(--gold); margin-bottom:2mm;}
-  .event .e-line{font-size:7.6pt; line-height:1.5; color:rgba(251,244,230,.9);}
-  .event .e-strong{color:#fff; font-weight:600; display:block; font-size:8pt; margin-top:1mm;}
+  .events{width:100%; display:flex; flex-direction:column; gap:3mm; margin:3mm 0;}
+  .event{ border:1px solid rgba(212,175,55,.4); border-radius:2.5mm; padding:2.8mm 3mm; background:rgba(0,0,0,.16); }
+  .event h3{font-family:'Playfair Display',serif; font-weight:600; font-size:10pt; color:var(--gold); margin-bottom:1mm;}
+  .event .e-line{font-size:7.2pt; line-height:1.45; color:rgba(251,244,230,.92);}
+  .event .e-strong{color:#fff; font-weight:600; display:block; font-size:7.6pt; margin-top:.6mm;}
 
-  .footer{margin-top:auto; width:100%; display:flex; align-items:center; justify-content:center; gap:6mm;}
-  .qr-box{display:flex; flex-direction:column; align-items:center; gap:1.5mm;}
-  #qr{width:24mm; height:24mm; background:#fff; padding:1.4mm; border-radius:2mm;}
+  .footer{margin-top:auto; display:flex; flex-direction:column; align-items:center; gap:1.6mm; padding-top:2mm;}
+  #qr{width:23mm; height:23mm; background:#fff; padding:1.3mm; border-radius:2mm;}
   #qr img,#qr canvas{width:100%!important; height:100%!important; display:block;}
-  .qr-cap{font-size:6.2pt; letter-spacing:.16em; text-transform:uppercase; color:var(--gold);}
-  .footer .verse{font-size:7.2pt; font-style:italic; line-height:1.55; color:rgba(251,244,230,.72); max-width:74mm; text-align:left;}
-  .footer .verse .src{font-style:normal; color:var(--gold); display:block; margin-top:1mm; letter-spacing:.1em;}
+  .qr-cap{font-size:6pt; letter-spacing:.16em; text-transform:uppercase; color:var(--gold);}
 
-  /* ── PRINT ── */
+  /* PRINT */
   @page{ size:A5; margin:0; }
   @media print{
     body{background:#fff; padding:0;}
     .toolbar{display:none;}
-    .card{box-shadow:none; width:148mm; height:210mm;}
+    .card{box-shadow:none;}
     *{ -webkit-print-color-adjust:exact !important; print-color-adjust:exact !important; }
   }
 </style>
@@ -119,74 +109,64 @@
   </div>
 
   <div class="card">
-    <div class="frame outer"></div>
-    <div class="frame inner"></div>
-    <span class="corner tl"></span><span class="corner tr"></span>
-    <span class="corner bl"></span><span class="corner br"></span>
+    <!-- Foto kiri -->
+    <div class="photo-col"><img src="assets/print-couple.jpg" alt="Richard &amp; Gita" /></div>
 
-    <div class="inner-wrap">
-      <div class="banner"><img src="assets/together-7.jpg" alt="Richard &amp; Gita" /></div>
-      <div class="xi-badge">囍</div>
-      <p class="invite-label">The Wedding Of</p>
+    <!-- Konten kanan -->
+    <div class="content-col">
+      <span class="corner tr"></span><span class="corner br"></span>
+      <div class="stack">
+        <div class="xi-badge">囍</div>
+        <p class="invite-label">The Wedding Of</p>
 
-      <div class="names">
-        Richard
-        <span class="amp">&amp;</span>
-        Gita
-      </div>
-      <div class="han">张文兴 · 甘美花</div>
-
-      <div class="rule"></div>
-
-      <p class="intro">
-        Dengan memohon rahmat Tuhan Yang Maha Esa, kami mengundang Bapak/Ibu/Saudara/i
-        untuk hadir &amp; memberikan doa restu pada pernikahan kami.
-      </p>
-
-      <div class="parents">
-        <div class="p-col">
-          <span class="role">Mempelai Pria</span>
-          Putra dari<br>
-          <strong>Bp. Jack Chandra Wijaya</strong><br>&amp; <strong>Ibu Kasmah</strong>
+        <div class="names">
+          Richard
+          <span class="amp">&amp;</span>
+          Gita
         </div>
-        <div class="p-col">
-          <span class="role">Mempelai Wanita</span>
-          Putri dari<br>
-          <strong>Bp. Alm. Andry Martin</strong><br>&amp; <strong>Ibu Lusiana</strong>
-        </div>
-      </div>
+        <div class="han">张文兴 · 甘美花</div>
 
-      <div class="events">
-        <div class="event">
-          <h3>Akad &amp; Adat</h3>
-          <div class="e-line">
-            <span class="e-strong">Jumat, 26 Juni 2026</span>
-            07.00 – 18.00 WITA
-            <span class="e-strong">Kediaman Mempelai Wanita</span>
-            Jl. Samarinda Sanga-Sanga RT 17, Kel. Bukuan, Kec. Palaran — Samarinda
-          </div>
-        </div>
-        <div class="event">
-          <h3>Resepsi</h3>
-          <div class="e-line">
-            <span class="e-strong">Minggu, 28 Juni 2026</span>
-            11.00 – Selesai WITA
-            <span class="e-strong">Nusantara Grand Ballroom</span>
-            Hotel MaxOne, Jl. MT Haryono No.2 — Balikpapan
-          </div>
-        </div>
-      </div>
+        <div class="rule"></div>
 
-      <div class="footer">
-        <div class="qr-box">
-          <div id="qr"></div>
-          <span class="qr-cap">Scan: Undangan Digital</span>
-        </div>
-        <p class="verse">
-          “Demikianlah mereka bukan lagi dua, melainkan satu. Karena itu, apa yang
-          telah dipersatukan Tuhan, tidak boleh diceraikan manusia.”
-          <span class="src">— Matius 19:6</span>
+        <p class="intro">
+          Dengan memohon rahmat Tuhan Yang Maha Esa, kami mengundang
+          Bapak/Ibu/Saudara/i untuk hadir &amp; memberikan doa restu.
         </p>
+
+        <div class="parents">
+          <div class="p-block">
+            <span class="role">Mempelai Pria</span>
+            Putra dari <strong>Bp. Jack Chandra Wijaya</strong> &amp; <strong>Ibu Kasmah</strong>
+          </div>
+          <div class="p-block">
+            <span class="role">Mempelai Wanita</span>
+            Putri dari <strong>Bp. Alm. Andry Martin</strong> &amp; <strong>Ibu Lusiana</strong>
+          </div>
+        </div>
+
+        <div class="events">
+          <div class="event">
+            <h3>Akad &amp; Acara Adat</h3>
+            <div class="e-line">
+              <span class="e-strong">Jumat, 26 Juni 2026 · 07.00 – 18.00 WITA</span>
+              Kediaman Mempelai Wanita — Jl. Samarinda Sanga-Sanga RT 17, Kel. Bukuan, Kec. Palaran, Samarinda
+            </div>
+          </div>
+          <div class="event">
+            <h3>Tea Pai &amp; Resepsi</h3>
+            <div class="e-line">
+              <span class="e-strong">Minggu, 28 Juni 2026</span>
+              Tea Pai 09.00 – 11.00 · Resepsi 11.00 – Selesai WITA
+              <span class="e-strong">Nusantara Grand Ballroom</span>
+              Hotel MaxOne, Jl. MT Haryono No.2, Balikpapan
+            </div>
+          </div>
+        </div>
+
+        <div class="footer">
+          <div id="qr"></div>
+          <span class="qr-cap">Scan · Undangan Digital</span>
+        </div>
       </div>
     </div>
   </div>
@@ -196,13 +176,13 @@
   var SITE = 'https://wedding-richard-gita.vercel.app/';
   try {
     new QRCode(document.getElementById('qr'), {
-      text: SITE, width: 220, height: 220,
+      text: SITE, width: 200, height: 200,
       colorDark: '#1d1012', colorLight: '#ffffff',
       correctLevel: QRCode.CorrectLevel.M
     });
   } catch (e) {
     document.getElementById('qr').outerHTML =
-      '<img id="qr" src="https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=' +
+      '<img id="qr" src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=' +
       encodeURIComponent(SITE) + '" alt="QR" />';
   }
 </script>
