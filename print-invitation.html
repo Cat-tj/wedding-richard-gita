@@ -106,11 +106,11 @@
   .qr-cap{font-size:6pt; letter-spacing:.16em; text-transform:uppercase; color:var(--gold);}
 
   /* PRINT */
-  @page{ size:A5; margin:0; }
+  @page{ size:148mm 210mm; margin:0; }
   @media print{
-    body{background:#fff; padding:0;}
-    .toolbar{display:none;}
-    .card{box-shadow:none;}
+    html,body{ margin:0; padding:0; width:148mm; height:210mm; background:#6f0a18; }
+    .toolbar{ display:none; }
+    .card{ box-shadow:none; margin:0; width:148mm; height:210mm; }
     *{ -webkit-print-color-adjust:exact !important; print-color-adjust:exact !important; }
   }
 </style>
@@ -119,7 +119,7 @@
 
   <div class="toolbar">
     <button class="btn" onclick="window.print()">🖨 Cetak / Simpan PDF</button>
-    <p>Ukuran A5 (148×210mm). Saat dialog cetak: pilih A5, margin <b>None</b>, aktifkan <b>Background graphics</b>.</p>
+    <p>Agar tanpa border: di dialog cetak set <b>Paper size = A5</b>, <b>Margins = None</b>, <b>Scale = 100</b> (jangan "Fit"), dan centang <b>Background graphics</b>.</p>
   </div>
 
   <div class="card">
