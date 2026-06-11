@@ -942,14 +942,11 @@
     /* ══════════════════════════════════════
        UCAPAN / LEAVE A MESSAGE
     ══════════════════════════════════════ */
-    .wishes { padding: 90px 24px 100px; background: var(--dark2); }
-    .wishes-header { text-align: center; margin-bottom: 40px; }
-    .wish-wrap { max-width: 560px; margin: 0 auto; }
-    .wish-form {
-      border-radius: 20px; padding: 32px 28px;
-      display: flex; flex-direction: column; gap: 16px; margin-bottom: 30px;
+    .wish-wrap { max-width: 520px; margin: 48px auto 0; }
+    .wish-feed-title {
+      text-align: center; font-family: 'Playfair Display', serif;
+      font-size: 1.25rem; color: var(--white); margin-bottom: 6px;
     }
-    @media (max-width: 560px) { .wish-form { padding: 26px 20px; } }
     .wish-count {
       text-align: center; font-size: 11px; letter-spacing: .18em;
       text-transform: uppercase; color: rgba(212,175,55,.6); margin-bottom: 18px;
@@ -1539,37 +1536,10 @@
       <h3>Terima Kasih!</h3>
       <p>RSVP Anda telah kami terima.<br>Sampai jumpa di hari bahagia kami!</p>
     </div>
-  </section>
 
-  <!-- ── UCAPAN / LEAVE A MESSAGE ── -->
-  <section class="wishes" id="ucapan">
-    <div class="wishes-header section-inner">
-      <span class="label reveal">Ucapan &amp; Doa</span>
-      <h2 class="title reveal" style="text-align:center;">Leave a Message</h2>
-      <div class="divider"></div>
-    </div>
-
-    <div class="wish-wrap">
-      <form class="wish-form glass reveal" id="wish-form" onsubmit="submitWish(event)">
-        <div class="field">
-          <label>Nama</label>
-          <input type="text" id="wish-name" placeholder="Nama Anda" required maxlength="40" />
-        </div>
-        <div class="field">
-          <label>Kehadiran</label>
-          <select id="wish-hadir">
-            <option value="Akan Hadir">Akan Hadir</option>
-            <option value="Tidak Hadir">Tidak Hadir</option>
-            <option value="Masih Ragu">Masih Ragu</option>
-          </select>
-        </div>
-        <div class="field">
-          <label>Ucapan &amp; Doa</label>
-          <textarea id="wish-msg" rows="3" placeholder="Tulis ucapan &amp; doa untuk kedua mempelai…" required maxlength="500"></textarea>
-        </div>
-        <button type="submit" class="submit-btn">Kirim Ucapan ✦</button>
-      </form>
-
+    <!-- Feed ucapan & doa dari para tamu -->
+    <div class="wish-wrap reveal">
+      <h3 class="wish-feed-title">Ucapan &amp; Doa dari Tamu</h3>
       <p class="wish-count" id="wish-count"></p>
       <div class="wish-list" id="wish-list">
         <p class="wish-loading">Memuat ucapan…</p>
@@ -1799,7 +1769,8 @@
 
     const name    = document.getElementById('rsvp-name').value.trim();
     const count   = document.getElementById('rsvp-count').value;
-    const hadir   = document.querySelector('input[name="hadir"]:checked').value;
+    const hadirRaw = document.querySelector('input[name="hadir"]:checked').value;
+    const hadir   = hadirRaw === 'tidak' ? 'Tidak Hadir' : 'Hadir';
     const msg     = document.getElementById('rsvp-msg').value.trim();
     const ts      = new Date().toLocaleString('id-ID', {timeZone:'Asia/Makassar'});
 
@@ -1813,6 +1784,12 @@
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
       }).catch(() => {});
+    }
+
+    // Kalau ada ucapan, langsung tampilkan di feed (optimistic)
+    if (msg) {
+      _wishes.unshift({ name, hadir, message: msg, timestamp: ts });
+      renderWishes();
     }
 
     // Always show success (no-cors = can't read response)
@@ -1925,37 +1902,6 @@
       .then(r => r.json())
       .then(d => { _wishes = Array.isArray(d.ucapan) ? d.ucapan.slice().reverse() : []; renderWishes(); })
       .catch(() => { renderWishes(); });
-  }
-
-  function submitWish(e) {
-    e.preventDefault();
-    const btn   = e.target.querySelector('.submit-btn');
-    const name  = document.getElementById('wish-name').value.trim();
-    const hadir = document.getElementById('wish-hadir').value;
-    const msg   = document.getElementById('wish-msg').value.trim();
-    if (!name || !msg) return;
-
-    btn.textContent = 'Mengirim…';
-    btn.disabled = true;
-
-    const ts = new Date().toLocaleString('id-ID', { timeZone: 'Asia/Makassar' });
-    const payload = { type: 'ucapan', timestamp: ts, name, hadir, message: msg };
-
-    if (SHEET_URL !== 'PASTE_YOUR_GOOGLE_SCRIPT_URL_HERE') {
-      fetch(SHEET_URL, {
-        method: 'POST',
-        mode: 'no-cors',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      }).catch(() => {});
-    }
-
-    // tampilkan langsung (optimistic) di paling atas
-    _wishes.unshift({ name, hadir, message: msg, timestamp: ts });
-    renderWishes();
-    e.target.reset();
-
-    setTimeout(() => { btn.textContent = 'Kirim Ucapan ✦'; btn.disabled = false; }, 900);
   }
 
   window.addEventListener('load', loadWishes);
