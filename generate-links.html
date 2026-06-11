@@ -144,7 +144,7 @@
     </div>
     <div class="step">
       <div class="step-num">2</div>
-      <div class="step-text">Paste daftar tamu — satu nama per baris. Bisa dari copy Excel kolom "Nama Tamu".</div>
+      <div class="step-text">Paste daftar tamu — satu per baris. Ada 2 kolom: <strong>Personal</strong> (perorangan) dan <strong>Grup / Organisasi</strong> (keluarga besar, komunitas, dll). Bisa langsung copy dari Excel.</div>
     </div>
     <div class="step">
       <div class="step-num">3</div>
@@ -164,10 +164,15 @@
       <label>URL Website Undangan</label>
       <input type="url" id="base-url" value="https://wedding-site-seven-lemon.vercel.app/" placeholder="https://wedding-site-seven-lemon.vercel.app/" />
     </div>
+    <div style="margin-bottom:20px">
+      <label>Daftar Tamu Personal (1 nama per baris)</label>
+      <textarea id="guest-list" placeholder="Budi Santoso&#10;Siti Rahayu&#10;Ahmad Fauzi&#10;..."></textarea>
+      <p class="hint">💡 Tip: Copy kolom nama dari Excel kamu, langsung paste di sini. Disapa: “Kepada Yth. Bapak/Ibu/Saudara/i [Nama]”.</p>
+    </div>
     <div>
-      <label>Daftar Nama Tamu (1 nama per baris)</label>
-      <textarea id="guest-list" placeholder="Budi Santoso&#10;Siti Rahayu&#10;Ahmad Fauzi&#10;Keluarga Bapak Hendra&#10;..."></textarea>
-      <p class="hint">💡 Tip: Copy kolom nama dari Excel kamu, langsung paste di sini. Nama akan di-encode otomatis untuk URL.</p>
+      <label>Daftar Grup / Organisasi (opsional · 1 per baris)</label>
+      <textarea id="group-list" placeholder="Keluarga Besar Zhang&#10;Keluarga Besar Dayak Tiong Oheng&#10;Komunitas / Paguyuban ...&#10;..."></textarea>
+      <p class="hint">👨‍👩‍👧‍👦 Untuk undangan kolektif (keluarga besar, komunitas, organisasi). Disapa: “Kepada Yth. [Nama Grup]” + ajakan untuk seluruh anggota.</p>
     </div>
     <button onclick="generate()">✦ Generate Links</button>
   </div>
@@ -185,30 +190,46 @@
   <footer>Richard &amp; Gita Wedding · Generated with ♥</footer>
 
 <script>
+  const EVENT_DETAIL =
+    `✨ Richard Chandra Tjiang & Gita Andriana ✨\n` +
+    `📅 Akad & Acara Adat: Jumat, 26 Juni 2026\n📅 Resepsi: Minggu, 28 Juni 2026\n📍 Samarinda & Balikpapan, Indonesia\n\n`;
+
+  function readLines(id) {
+    return document.getElementById(id).value.trim().split('\n').map(n => n.trim()).filter(Boolean);
+  }
+
+  function buildWa(name, url, isGroup) {
+    const intro = isGroup
+      ? `Kepada Yth.\n${name} 🌸\n\nDengan penuh kebahagiaan, kami mengundang Bapak/Ibu/Saudara/i sekalian untuk hadir pada pernikahan kami:\n\n`
+      : `Kepada Yth.\nBapak/Ibu/Saudara/i\n${name} 🌸\n\nDengan penuh kebahagiaan, kami mengundang kehadiran Anda pada pernikahan kami:\n\n`;
+    const msg = encodeURIComponent(
+      intro + EVENT_DETAIL +
+      `Silakan buka undangan digital Anda di:\n${url}\n\nTerima kasih atas kehadiran dan doa restu Anda 🙏`
+    );
+    return `https://wa.me/?text=${msg}`;
+  }
+
   function generate() {
     const baseUrl = document.getElementById('base-url').value.trim().replace(/\?.*$/, '');
-    const raw = document.getElementById('guest-list').value.trim();
-    if (!raw) { alert('Masukkan minimal 1 nama tamu!'); return; }
+    const personal = readLines('guest-list').map(n => ({ name: n, group: false }));
+    const groups   = readLines('group-list').map(n => ({ name: n, group: true }));
+    const entries  = [...personal, ...groups];
+    if (!entries.length) { alert('Masukkan minimal 1 nama tamu atau grup!'); return; }
 
-    const names = raw.split('\n').map(n => n.trim()).filter(Boolean);
     const container = document.getElementById('links-container');
     container.innerHTML = '';
 
-    names.forEach(name => {
-      const encoded = encodeURIComponent(name);
-      const url = `${baseUrl}?to=${encoded}`;
-      const waMsg = encodeURIComponent(
-        `Kepada Yth. ${name} 🌸\n\nDengan penuh kebahagiaan, kami mengundang kehadiran Bapak/Ibu/Saudara/i pada pernikahan kami:\n\n` +
-        `✨ Richard Chandra Tjiang & Gita Andriana ✨\n` +
-        `📅 Akad & Acara Adat: Jumat, 26 Juni 2026\n📅 Resepsi: Minggu, 28 Juni 2026\n📍 Samarinda & Balikpapan, Indonesia\n\n` +
-        `Silakan buka undangan digital Anda di:\n${url}\n\nTerima kasih atas kehadiran dan doa restu Anda 🙏`
-      );
-      const waUrl = `https://wa.me/?text=${waMsg}`;
+    entries.forEach(({ name, group }) => {
+      const url = `${baseUrl}?to=${encodeURIComponent(name)}`;
+      const waUrl = buildWa(name, url, group);
+      const tag = group
+        ? `<span style="font-size:9px;letter-spacing:.1em;text-transform:uppercase;padding:2px 8px;border-radius:20px;background:rgba(212,175,55,.18);color:#d4af37;margin-left:8px;">Grup</span>`
+        : '';
 
       const row = document.createElement('div');
       row.innerHTML = `
         <div class="link-row">
-          <span class="link-name">${escHtml(name)}</span>
+          <span class="link-name">${escHtml(name)}${tag}</span>
           <span class="link-url">${escHtml(url)}</span>
           <button class="link-copy" onclick="copyLink(this, '${escAttr(url)}')">Copy Link</button>
         </div>
@@ -221,7 +242,8 @@
       container.appendChild(row);
     });
 
-    document.getElementById('count-info').innerHTML = `<span class="count-badge">Total: ${names.length} tamu undangan</span>`;
+    const gn = groups.length ? ` (${personal.length} personal · ${groups.length} grup)` : '';
+    document.getElementById('count-info').innerHTML = `<span class="count-badge">Total: ${entries.length} undangan${gn}</span>`;
     document.getElementById('output').style.display = 'block';
     document.getElementById('output').scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
@@ -236,7 +258,7 @@
 
   function copyAll() {
     const baseUrl = document.getElementById('base-url').value.trim().replace(/\?.*$/, '');
-    const names = document.getElementById('guest-list').value.trim().split('\n').map(n => n.trim()).filter(Boolean);
+    const names = [...readLines('guest-list'), ...readLines('group-list')];
     const lines = names.map(n => `${n}\t${baseUrl}?to=${encodeURIComponent(n)}`).join('\n');
     navigator.clipboard.writeText(lines).then(() => {
       const btn = document.querySelector('.copy-all');
