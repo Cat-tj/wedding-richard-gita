@@ -417,28 +417,70 @@
     .portrait-card:hover .portrait-braid { border-color: rgba(212,175,55,.5); animation-duration: 10s; }
 
     /* info side */
-    .portrait-info { display: flex; flex-direction: column; gap: 20px; }
+    .portrait-info { display: flex; flex-direction: column; gap: 16px; }
     .portrait-role {
       font-size: 10px; letter-spacing: .32em; text-transform: uppercase;
-      color: var(--gold); margin-bottom: -8px;
+      color: var(--gold); margin-bottom: -4px;
     }
+
+    /* ── Chinese name block ── */
+    .portrait-hanzi-block {
+      display: flex; flex-direction: column; gap: 4px;
+      margin-bottom: 2px;
+    }
+    .portrait-hanzi {
+      /* Pakai system CJK font — zero extra loading, bagus di semua device */
+      font-family: 'PingFang SC', 'Noto Serif SC', 'Songti SC', 'SimSun', serif;
+      font-size: clamp(2.4rem, 5vw, 3.8rem);
+      font-weight: 700;
+      letter-spacing: .15em;
+      line-height: 1;
+      /* Gold gradient agar terlihat mewah */
+      background: linear-gradient(135deg, #e5c22a 0%, #d4af37 40%, #a17a00 70%, #d4af37 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    /* Fallback untuk browser yang tidak support gradient text */
+    @supports not (-webkit-background-clip: text) {
+      .portrait-hanzi { color: var(--gold); }
+    }
+    .portrait-romanization {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 13px; font-style: italic;
+      letter-spacing: .12em;
+      color: rgba(212,175,55,.5);
+    }
+
     .portrait-name {
       font-family: 'Playfair Display', serif;
-      font-size: clamp(2rem, 4vw, 3rem); font-weight: 700;
-      line-height: 1.15;
+      font-size: clamp(1.6rem, 3.5vw, 2.4rem); font-weight: 700;
+      line-height: 1.15; margin-top: -4px;
     }
     .portrait-fullname {
-      font-size: 14px; color: rgba(250,248,243,.65);
-      font-family: 'Cormorant Garamond', serif; font-size: 18px; font-style: italic;
+      font-family: 'Cormorant Garamond', serif; font-size: 17px; font-style: italic;
+      color: rgba(250,248,243,.55);
     }
     .portrait-from {
-      font-size: 11px; letter-spacing: .1em; color: rgba(212,175,55,.6); text-transform: uppercase;
+      font-size: 10px; letter-spacing: .18em; color: rgba(212,175,55,.6); text-transform: uppercase;
+      margin-top: 4px;
     }
     .portrait-parents {
-      font-family: 'Cormorant Garamond', serif; font-size: 17px;
-      color: rgba(250,248,243,.8); line-height: 1.7;
+      font-family: 'Cormorant Garamond', serif; font-size: 16px;
+      color: rgba(250,248,243,.8); line-height: 1.85;
     }
     .portrait-parents strong { color: var(--white); font-weight: 400; font-style: italic; }
+
+    /* Chinese name inline (untuk orang tua) */
+    .cn-name {
+      font-family: 'PingFang SC', 'Noto Serif SC', 'Songti SC', serif;
+      font-size: .9em; color: var(--gold); opacity: .75;
+      margin-left: 4px; letter-spacing: .1em;
+    }
+    .cn-roman {
+      font-size: .8em; color: rgba(212,175,55,.45);
+      font-style: italic; margin-left: 2px;
+    }
 
     /* ══════════════════════════════════════
        COUPLE INTRO (landscape photo + quote)
@@ -1054,12 +1096,21 @@
       <!-- Info -->
       <div class="portrait-info reveal-r">
         <span class="portrait-role">The Groom</span>
+
+        <div class="portrait-hanzi-block">
+          <span class="portrait-hanzi" lang="zh">张文兴</span>
+          <span class="portrait-romanization">Zhang Wen Xing</span>
+        </div>
+
         <h2 class="portrait-name">Richard</h2>
         <p class="portrait-fullname">Richard Chandra Tjiang</p>
-        <div style="width:48px;height:1px;background:linear-gradient(90deg,var(--gold),transparent);margin:4px 0 8px;"></div>
+
+        <div style="width:48px;height:1px;background:linear-gradient(90deg,var(--gold),transparent);margin:4px 0 4px;"></div>
         <span class="portrait-from">Putra dari</span>
         <p class="portrait-parents">
-          <strong>Bapak Jack Chandra Wijaya</strong><br>
+          <strong>Bapak Jack Chandra Wijaya</strong>
+          <span class="cn-name" lang="zh">张振强</span>
+          <span class="cn-roman">· Zhang Djen Qiang</span><br>
           &amp; <strong>Ibu Kasmah</strong>
         </p>
       </div>
@@ -1080,9 +1131,16 @@
       <!-- Info -->
       <div class="portrait-info reveal-l">
         <span class="portrait-role">The Bride</span>
+
+        <div class="portrait-hanzi-block">
+          <span class="portrait-hanzi" lang="zh">甘美花</span>
+          <span class="portrait-romanization">Gan Mei Hwa</span>
+        </div>
+
         <h2 class="portrait-name">Gita</h2>
         <p class="portrait-fullname">Gita Andriana</p>
-        <div style="width:48px;height:1px;background:linear-gradient(90deg,var(--gold),transparent);margin:4px 0 8px;"></div>
+
+        <div style="width:48px;height:1px;background:linear-gradient(90deg,var(--gold),transparent);margin:4px 0 4px;"></div>
         <span class="portrait-from">Putri dari</span>
         <p class="portrait-parents">
           <strong>Bapak Alm. Andry Martin</strong><br>
