@@ -1815,13 +1815,12 @@
     let cls = 'ragu';
     if (h.indexOf('tidak') > -1) cls = 'tidak';
     else if (h.indexOf('hadir') > -1) cls = 'hadir';
-    const badge = w.hadir ? `<span class="wish-badge ${cls}">${escapeHtml(w.hadir)}</span>` : '';
     const time  = w.timestamp ? `<span class="wish-time">${escapeHtml(w.timestamp)}</span>` : '';
     return `<div class="wish-card">
         <div class="wish-top">
           <div class="wish-avatar">${escapeHtml(initial)}</div>
           <span class="wish-name">${escapeHtml(name)}</span>
-          ${badge}${time}
+          ${time}
         </div>
         <div class="wish-text">${escapeHtml(w.message)}</div>
       </div>`;
@@ -1838,7 +1837,7 @@
       if (cnt) cnt.textContent = '';
       return;
     }
-    if (cnt) cnt.textContent = _wishes.length + ' Ucapan';
+    if (cnt) cnt.textContent = '';
 
     const cards = _wishes.map(wishCard).join('');
     const marquee = _wishes.length > 5 && !isLowEnd;
