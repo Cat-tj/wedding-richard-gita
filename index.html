@@ -1512,20 +1512,7 @@
         <input type="text" id="rsvp-name" placeholder="Nama Anda" required />
       </div>
       <div class="field">
-        <label>Konfirmasi Kehadiran</label>
-        <div class="radio-row">
-          <div class="radio-opt">
-            <input type="radio" name="hadir" id="r-hadir" value="hadir" checked>
-            <label for="r-hadir">✓ Hadir</label>
-          </div>
-          <div class="radio-opt">
-            <input type="radio" name="hadir" id="r-tidak" value="tidak">
-            <label for="r-tidak">✗ Tidak Hadir</label>
-          </div>
-        </div>
-      </div>
-      <div class="field">
-        <label>Ucapan &amp; Doa (opsional)</label>
+        <label>Ucapan &amp; Doa</label>
         <textarea id="rsvp-msg" rows="4" placeholder="Sampaikan ucapan dan doa untuk kami…"></textarea>
       </div>
       <button type="submit" class="submit-btn">Kirim ✦</button>
@@ -1768,13 +1755,11 @@
     btn.textContent = 'Mengirim…';
     btn.disabled = true;
 
-    const name    = document.getElementById('rsvp-name').value.trim();
-    const hadirRaw = document.querySelector('input[name="hadir"]:checked').value;
-    const hadir   = hadirRaw === 'tidak' ? 'Tidak Hadir' : 'Hadir';
-    const msg     = document.getElementById('rsvp-msg').value.trim();
-    const ts      = new Date().toLocaleString('id-ID', {timeZone:'Asia/Makassar'});
+    const name = document.getElementById('rsvp-name').value.trim();
+    const msg  = document.getElementById('rsvp-msg').value.trim();
+    const ts   = new Date().toLocaleString('id-ID', {timeZone:'Asia/Makassar'});
 
-    const payload = { timestamp: ts, name, hadir, message: msg };
+    const payload = { timestamp: ts, name, message: msg };
 
     // Send to Google Sheets (no-cors mode = fire and forget)
     if (SHEET_URL !== 'PASTE_YOUR_GOOGLE_SCRIPT_URL_HERE') {
@@ -1788,7 +1773,7 @@
 
     // Kalau ada ucapan, langsung tampilkan di feed (optimistic)
     if (msg) {
-      _wishes.unshift({ name, hadir, message: msg, timestamp: ts });
+      _wishes.unshift({ name, message: msg, timestamp: ts });
       renderWishes();
     }
 
