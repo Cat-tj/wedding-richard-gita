@@ -1503,16 +1503,6 @@
         <input type="text" id="rsvp-name" placeholder="Nama Anda" required />
       </div>
       <div class="field">
-        <label>Jumlah Tamu</label>
-        <select id="rsvp-count">
-          <option value="1">1 Orang</option>
-          <option value="2">2 Orang</option>
-          <option value="3">3 Orang</option>
-          <option value="4">4 Orang</option>
-          <option value="5+">5+ Orang</option>
-        </select>
-      </div>
-      <div class="field">
         <label>Konfirmasi Kehadiran</label>
         <div class="radio-row">
           <div class="radio-opt">
@@ -1769,13 +1759,12 @@
     btn.disabled = true;
 
     const name    = document.getElementById('rsvp-name').value.trim();
-    const count   = document.getElementById('rsvp-count').value;
     const hadirRaw = document.querySelector('input[name="hadir"]:checked').value;
     const hadir   = hadirRaw === 'tidak' ? 'Tidak Hadir' : 'Hadir';
     const msg     = document.getElementById('rsvp-msg').value.trim();
     const ts      = new Date().toLocaleString('id-ID', {timeZone:'Asia/Makassar'});
 
-    const payload = { timestamp: ts, name, count, hadir, message: msg };
+    const payload = { timestamp: ts, name, hadir, message: msg };
 
     // Send to Google Sheets (no-cors mode = fire and forget)
     if (SHEET_URL !== 'PASTE_YOUR_GOOGLE_SCRIPT_URL_HERE') {
