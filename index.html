@@ -1888,10 +1888,10 @@
   function loadWishes() {
     if (!document.getElementById('wish-list')) return;
     if (SHEET_URL === 'PASTE_YOUR_GOOGLE_SCRIPT_URL_HERE') { _wishes = []; renderWishes(); return; }
-    fetch(SHEET_URL + '?action=list', { method: 'GET' })
-      .then(r => r.json())
+    fetch(SHEET_URL + '?action=list', { method: 'GET', redirect: 'follow' })
+      .then(r => { if (!r.ok) throw new Error(r.status); return r.json(); })
       .then(d => { _wishes = Array.isArray(d.ucapan) ? d.ucapan.slice().reverse() : []; renderWishes(); })
-      .catch(() => { renderWishes(); });
+      .catch(err => { console.warn('loadWishes failed:', err); renderWishes(); });
   }
 
   window.addEventListener('load', loadWishes);

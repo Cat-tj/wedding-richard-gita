@@ -10,7 +10,7 @@
  *    URL /exec tetap sama, jadi tidak perlu ubah index.html
  *
  * RSVP & ucapan disimpan di SATU tab: "RSVP"
- *   Kolom: Timestamp | Nama | Jumlah Tamu | Kehadiran | Ucapan / Doa
+ *   Kolom: Timestamp | Nama | Kehadiran | Ucapan / Doa
  * Website menampilkan ucapan dari kolom "Ucapan / Doa" (baris yang terisi).
  */
 
@@ -25,13 +25,12 @@ function doPost(e) {
     let sheet = ss.getSheetByName(RSVP_SHEET);
     if (!sheet) {
       sheet = ss.insertSheet(RSVP_SHEET);
-      sheet.appendRow(['Timestamp', 'Nama', 'Jumlah Tamu', 'Kehadiran', 'Ucapan / Doa']);
-      styleHeader(sheet, 5);
+      sheet.appendRow(['Timestamp', 'Nama', 'Kehadiran', 'Ucapan / Doa']);
+      styleHeader(sheet, 4);
     }
     sheet.appendRow([
       data.timestamp || new Date().toLocaleString('id-ID'),
       data.name      || '',
-      data.count     || '1',
       data.hadir     || '',
       data.message   || '',
     ]);
@@ -50,11 +49,11 @@ function doGet(e) {
       const sheet = ss.getSheetByName(RSVP_SHEET);
       const out   = [];
       if (sheet && sheet.getLastRow() > 1) {
-        const rows = sheet.getRange(2, 1, sheet.getLastRow() - 1, 5).getValues();
+        const rows = sheet.getRange(2, 1, sheet.getLastRow() - 1, 4).getValues();
         rows.forEach(r => {
-          const message = (r[4] || '').toString().trim();
+          const message = (r[3] || '').toString().trim();
           if (message) {
-            out.push({ timestamp: r[0], name: r[1], hadir: r[3], message: message });
+            out.push({ timestamp: r[0], name: r[1], hadir: r[2], message: message });
           }
         });
       }
@@ -74,8 +73,8 @@ function setup() {
   let rsvp = ss.getSheetByName(RSVP_SHEET);
   if (!rsvp) {
     rsvp = ss.insertSheet(RSVP_SHEET);
-    rsvp.appendRow(['Timestamp', 'Nama', 'Jumlah Tamu', 'Kehadiran', 'Ucapan / Doa']);
-    styleHeader(rsvp, 5);
+    rsvp.appendRow(['Timestamp', 'Nama', 'Kehadiran', 'Ucapan / Doa']);
+    styleHeader(rsvp, 4);
   }
   rsvp.setFrozenRows(1);
   Logger.log('Setup selesai: tab "RSVP" siap.');
