@@ -49,11 +49,13 @@ function doGet(e) {
       const sheet = ss.getSheetByName(RSVP_SHEET);
       const out   = [];
       if (sheet && sheet.getLastRow() > 1) {
-        const rows = sheet.getRange(2, 1, sheet.getLastRow() - 1, 4).getValues();
+        const ncols = sheet.getLastColumn();
+        const rows = sheet.getRange(2, 1, sheet.getLastRow() - 1, ncols).getValues();
         rows.forEach(r => {
-          const message = (r[3] || '').toString().trim();
+          // support both old (5-col) and new (4-col) sheet structure
+          const message = (ncols >= 5 ? r[4] : r[3] || '').toString().trim();
           if (message) {
-            out.push({ timestamp: r[0], name: r[1], hadir: r[2], message: message });
+            out.push({ timestamp: r[0], name: r[1], message: message });
           }
         });
       }
