@@ -261,17 +261,29 @@
     try{
       btn.textContent = '🖼 Memuat gambar...';
       await waitForImages(document.getElementById('pages'));
+      let failed = 0;
       for(let i=0;i<pages.length;i++){
         btn.textContent = `🖼 Membuat ${i+1}/${pages.length}...`;
-        const canvas = await html2canvas(pages[i], {
-          scale: 3, useCORS: true, allowTaint: false, backgroundColor: '#6f0a18'
-        });
-        const link = document.createElement('a');
-        link.href = canvas.toDataURL('image/png');
-        link.download = `undangan-halaman-${String(i+1).padStart(2,'0')}.png`;
-        link.click();
+        try {
+          const canvas = await html2canvas(pages[i], {
+            scale: 3, useCORS: true, allowTaint: false, backgroundColor: '#6f0a18',
+            imageTimeout: 0, logging: false,
+            // CSS filters (blur/drop-shadow) make html2canvas build 0-size canvases
+            // → "createPattern ... width or height of 0". Strip them in the clone.
+            onclone: (doc) => {
+              doc.querySelectorAll('*').forEach(el => {
+                if (el.style) { el.style.filter = 'none'; el.style.webkitFilter = 'none'; }
+              });
+            }
+          });
+          const link = document.createElement('a');
+          link.href = canvas.toDataURL('image/png');
+          link.download = `undangan-halaman-${String(i+1).padStart(2,'0')}.png`;
+          link.click();
+        } catch(e){ failed++; console.error('Halaman '+(i+1)+' gagal:', e); }
         await new Promise(r=>setTimeout(r,400));
       }
+      if (failed) alert(`${failed} dari ${pages.length} halaman gagal dibuat. Sisanya berhasil di-download.`);
     }catch(e){ alert('Gagal membuat PNG: ' + e.message); }
     finally{ btn.textContent = orig; btn.disabled = false; btn.style.opacity = ''; }
   }
