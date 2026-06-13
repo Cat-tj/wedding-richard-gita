@@ -5,6 +5,7 @@
     { "source": "/print-batch", "destination": "/print-batch.html" },
     { "source": "/print-envelope", "destination": "/print-envelope.html" },
     { "source": "/generate-links", "destination": "/generate-links.html" },
+    { "source": "/png-generator", "destination": "/png-generator.html" },
     { "source": "/photo-adjuster", "destination": "/photo-adjuster.html" },
     { "source": "/(.*)\\.html$", "destination": "/$1.html" }
   ]
