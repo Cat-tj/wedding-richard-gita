@@ -258,11 +258,20 @@
     const pagesHtml = all.map(e => coverPage(e.name, e.isFamily) + backPage(e.name, e.isFamily)).join('');
     document.getElementById('hidden-pages').innerHTML = pagesHtml;
 
-    // Generate QR codes
+    // Generate QR codes — render to canvas, then convert to <img> data URL
+    // (html2canvas chokes on live canvas elements → "createPattern ... width or height of 0")
     document.querySelectorAll('.qr').forEach(el=>{
       const u = el.dataset.url;
-      try{ new QRCode(el,{text:u,width:200,height:200,colorDark:'#1d1012',colorLight:'#fff',correctLevel:QRCode.CorrectLevel.M}); }
-      catch(err){ el.innerHTML = '<img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data='+encodeURIComponent(u)+'">'; }
+      try{
+        const tmp = document.createElement('div');
+        new QRCode(tmp,{text:u,width:200,height:200,colorDark:'#1d1012',colorLight:'#fff',correctLevel:QRCode.CorrectLevel.M});
+        const cv = tmp.querySelector('canvas');
+        const dataUrl = cv ? cv.toDataURL('image/png') : null;
+        el.innerHTML = dataUrl
+          ? '<img src="'+dataUrl+'" alt="QR">'
+          : '<img crossorigin="anonymous" src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data='+encodeURIComponent(u)+'">';
+      }
+      catch(err){ el.innerHTML = '<img crossorigin="anonymous" src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data='+encodeURIComponent(u)+'">'; }
     });
 
     // Generate output list
