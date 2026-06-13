@@ -1821,7 +1821,7 @@
     if (cnt) cnt.textContent = '';
 
     const cards = _wishes.map(wishCard).join('');
-    const marquee = _wishes.length > 5 && !isLowEnd;
+    const marquee = _wishes.length > 1 && !isLowEnd;
     list.classList.toggle('marquee', marquee);
 
     if (marquee) {
