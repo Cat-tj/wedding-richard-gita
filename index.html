@@ -569,10 +569,11 @@
     }
     .ceremony-header { text-align: center; margin-bottom: 60px; }
     .ceremony-grid {
-      max-width: 920px; margin: 0 auto;
-      display: grid; grid-template-columns: 1fr 1fr; gap: 28px;
+      max-width: 980px; margin: 0 auto;
+      display: flex; flex-wrap: wrap; justify-content: center; gap: 28px;
     }
-    @media (max-width:680px) { .ceremony-grid { grid-template-columns: 1fr; } }
+    .ceremony-grid .ceremony-card { flex: 1 1 280px; max-width: 440px; }
+    @media (max-width:680px) { .ceremony-grid .ceremony-card { flex-basis: 100%; max-width: none; } }
 
     .ceremony-card {
       border-radius: 20px; padding: 42px 36px; position: relative; overflow: hidden;
