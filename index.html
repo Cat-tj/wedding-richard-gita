@@ -1369,9 +1369,34 @@
         </a>
       </div>
 
+      <!-- Tea Pai (khusus keluarga) -->
+      <div class="ceremony-card glass reveal" id="teapai-card" style="display:none">
+        <span class="ceremony-num" id="teapai-num">02 — Tea Pai</span>
+        <h3 class="ceremony-type">Tea Pai</h3>
+        <div class="ceremony-detail">
+          <div class="c-row">
+            <span class="c-icon">📅</span>
+            <div class="c-text">
+              <strong>Minggu, 28 Juni 2026</strong>
+              Tea Pai: 09.00 – 11.00 WITA
+            </div>
+          </div>
+          <div class="c-row">
+            <span class="c-icon">📍</span>
+            <div class="c-text">
+              <strong>Nusantara Grand Ballroom</strong>
+              Hotel MaxOne Balikpapan,<br>Jl. MT Haryono No.2, Balikpapan
+            </div>
+          </div>
+        </div>
+        <a class="maps-btn" href="https://maps.google.com/?q=Hotel+MaxOne+Jl+MT+Haryono+No+2+Balikpapan" target="_blank">
+          <span>📍</span> Lihat Peta
+        </a>
+      </div>
+
       <!-- Resepsi -->
       <div class="ceremony-card glass reveal-r">
-        <span class="ceremony-num">02 — Resepsi</span>
+        <span class="ceremony-num" id="resepsi-num">02 — Resepsi</span>
         <h3 class="ceremony-type">Resepsi Pernikahan</h3>
         <div class="ceremony-detail">
           <div class="c-row">
@@ -1614,6 +1639,16 @@
       <p style="font-family:'Playfair Display',serif;font-size:1.2rem;font-style:italic;color:#faf8f3;margin-top:4px;">${guest}</p>`;
     const n = document.getElementById('rsvp-name');
     if (n) n.value = guest;
+  }
+
+  /* ── TEA PAI (khusus keluarga) ── */
+  // Link keluarga membawa flag ?tp=1 → tampilkan card Tea Pai & renumber Resepsi jadi 03
+  const isFamily = params.get('tp') === '1' || params.get('keluarga') === '1';
+  if (isFamily) {
+    const tp = document.getElementById('teapai-card');
+    if (tp) tp.style.display = '';
+    const rn = document.getElementById('resepsi-num');
+    if (rn) rn.textContent = '03 — Resepsi';
   }
 
   /* ── OPEN ENVELOPE ── */

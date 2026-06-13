@@ -254,7 +254,7 @@
     container.innerHTML = '';
 
     _entries.forEach((entry, idx) => {
-      entry.url  = `${baseUrl}?to=${encodeURIComponent(entry.name)}`;
+      entry.url  = `${baseUrl}?to=${encodeURIComponent(entry.name)}${entry.isFamily ? '&tp=1' : ''}`;
       entry.wa   = buildWa(entry.name, entry.url, entry.isFamily);
       entry.sent = !!sent[entry.name];
 
@@ -336,8 +336,9 @@
 
   function copyAll() {
     const baseUrl = document.getElementById('base-url').value.trim().replace(/\?.*$/, '');
-    const names = [...readLines('family-list'), ...readLines('guest-list')];
-    const lines = names.map(n => `${n}\t${baseUrl}?to=${encodeURIComponent(n)}`).join('\n');
+    const fam = readLines('family-list').map(n => ({n, tp:true}));
+    const gst = readLines('guest-list').map(n => ({n, tp:false}));
+    const lines = [...fam, ...gst].map(e => `${e.n}\t${baseUrl}?to=${encodeURIComponent(e.n)}${e.tp ? '&tp=1' : ''}`).join('\n');
     navigator.clipboard.writeText(lines).then(() => {
       const btn = document.querySelector('.copy-all');
       btn.textContent = '✓ Semua tersalin!';
