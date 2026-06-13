@@ -168,7 +168,7 @@
     </div>
     <div class="step">
       <div class="step-num">2</div>
-      <div class="step-text">Paste daftar tamu — satu per baris. Ada 2 kolom: <strong>Personal</strong> (perorangan) dan <strong>Grup / Organisasi</strong> (keluarga besar, komunitas, dll). Bisa langsung copy dari Excel.</div>
+      <div class="step-text">Paste daftar tamu — satu per baris. Ada 2 kolom: <strong>Keluarga</strong> (dengan Tea Pai 09.00–11.00) dan <strong>Tamu Undangan</strong> (hanya Resepsi 11.00–15.00). Bisa langsung copy dari Excel.</div>
     </div>
     <div class="step">
       <div class="step-num">3</div>
@@ -188,15 +188,15 @@
       <label>URL Website Undangan</label>
       <input type="url" id="base-url" value="https://wedding-richard-gita.vercel.app/" placeholder="https://wedding-richard-gita.vercel.app/" />
     </div>
-    <div style="margin-bottom:20px">
-      <label>Daftar Tamu Personal (1 nama per baris)</label>
-      <textarea id="guest-list" placeholder="Budi Santoso&#10;Siti Rahayu&#10;Ahmad Fauzi&#10;..."></textarea>
-      <p class="hint">💡 Tip: Copy kolom nama dari Excel kamu, langsung paste di sini. Disapa: “Kepada Yth. Bapak/Ibu/Saudara/i [Nama]”.</p>
+    <div style=”margin-bottom:20px”>
+      <label>Keluarga (dengan Tea Pai 09.00–11.00 · 1 nama per baris)</label>
+      <textarea id=”family-list” placeholder=”Keluarga Ibu Kasmah&#10;Keluarga Ibu Lusiana&#10;Close relatives&#10;...”></textarea>
+      <p class=”hint”>👨‍👩‍👧‍👦 Keluarga besar yang dapat jadwal Tea Pai. Disapa: “Kepada Yth. [Nama Keluarga/Grup]”.</p>
     </div>
     <div>
-      <label>Daftar Grup / Organisasi (opsional · 1 per baris)</label>
-      <textarea id="group-list" placeholder="Keluarga Besar Zhang&#10;Keluarga Besar Dayak Tiong Oheng&#10;Komunitas / Paguyuban ...&#10;..."></textarea>
-      <p class="hint">👨‍👩‍👧‍👦 Untuk undangan kolektif (keluarga besar, komunitas, organisasi). Disapa: “Kepada Yth. [Nama Grup]” + ajakan untuk seluruh anggota.</p>
+      <label>Tamu Undangan (hanya Resepsi 11.00–15.00 · 1 nama per baris)</label>
+      <textarea id=”guest-list” placeholder=”Budi Santoso&#10;Siti Rahayu&#10;Ahmad Fauzi&#10;...”></textarea>
+      <p class=”hint”>✦ Tamu undangan biasa tanpa Tea Pai. Disapa: “Kepada Yth. Bapak/Ibu/Saudara/i [Nama]”.</p>
     </div>
     <button onclick="generate()">✦ Generate Links</button>
   </div>
@@ -214,20 +214,20 @@
   <footer>Richard &amp; Gita Wedding · Generated with ♥</footer>
 
 <script>
-  const EVENT_DETAIL =
-    `✨ Richard Chandra Tjiang & Gita Andriana ✨\n` +
-    `📅 Akad & Acara Adat: Jumat, 26 Juni 2026\n📅 Resepsi: Minggu, 28 Juni 2026\n📍 Samarinda & Balikpapan, Indonesia\n\n`;
+  const ACARA = `Akad & Acara Adat: Jumat, 26 Juni 2026\n`;
+  const FAMILY_EVENT = `Tea Pai: Minggu, 28 Juni 2026 · 09.00 – 11.00 WITA\nResepsi: Minggu, 28 Juni 2026 · 11.00 – 15.00 WITA\n`;
+  const GUEST_EVENT = `Resepsi: Minggu, 28 Juni 2026 · 11.00 – 15.00 WITA\n`;
+  const LOCATION = `📍 Samarinda & Balikpapan, Indonesia\n\n`;
 
   function readLines(id) {
     return document.getElementById(id).value.trim().split('\n').map(n => n.trim()).filter(Boolean);
   }
 
-  function buildWa(name, url, isGroup) {
-    const intro = isGroup
-      ? `Kepada Yth.\n${name} 🌸\n\nDengan penuh kebahagiaan, kami mengundang Bapak/Ibu/Saudara/i sekalian untuk hadir pada pernikahan kami:\n\n`
-      : `Kepada Yth.\nBapak/Ibu/Saudara/i\n${name} 🌸\n\nDengan penuh kebahagiaan, kami mengundang kehadiran Anda pada pernikahan kami:\n\n`;
+  function buildWa(name, url, isFamily) {
+    const intro = `Kepada Yth.\n${name} 🌸\n\nDengan penuh kebahagiaan, kami mengundang Bapak/Ibu/Saudara/i sekalian untuk hadir pada pernikahan kami:\n\n`;
+    const eventDetail = `✨ Richard Chandra Tjiang & Gita Andriana ✨\n📅 ${ACARA}📅 ${isFamily ? FAMILY_EVENT : GUEST_EVENT}${LOCATION}`;
     const msg = encodeURIComponent(
-      intro + EVENT_DETAIL +
+      intro + eventDetail +
       `Silakan buka undangan digital Anda di:\n${url}\n\nTerima kasih atas kehadiran dan doa restu Anda 🙏`
     );
     return `https://wa.me/?text=${msg}`;
@@ -239,15 +239,15 @@
   function saveSent(m) { localStorage.setItem(SENT_KEY, JSON.stringify(m)); }
 
   let _entries = [];
-  let _personalCount = 0, _groupCount = 0;
+  let _familyCount = 0, _guestCount = 0;
 
   function generate() {
     const baseUrl = document.getElementById('base-url').value.trim().replace(/\?.*$/, '');
-    const personal = readLines('guest-list').map(n => ({ name: n, group: false }));
-    const groups   = readLines('group-list').map(n => ({ name: n, group: true }));
-    _entries = [...personal, ...groups];
-    _personalCount = personal.length; _groupCount = groups.length;
-    if (!_entries.length) { alert('Masukkan minimal 1 nama tamu atau grup!'); return; }
+    const family = readLines('family-list').map(n => ({ name: n, isFamily: true }));
+    const guests = readLines('guest-list').map(n => ({ name: n, isFamily: false }));
+    _entries = [...family, ...guests];
+    _familyCount = family.length; _guestCount = guests.length;
+    if (!_entries.length) { alert('Masukkan minimal 1 nama tamu atau keluarga!'); return; }
 
     const sent = getSent();
     const container = document.getElementById('links-container');
@@ -255,7 +255,7 @@
 
     _entries.forEach((entry, idx) => {
       entry.url  = `${baseUrl}?to=${encodeURIComponent(entry.name)}`;
-      entry.wa   = buildWa(entry.name, entry.url, entry.group);
+      entry.wa   = buildWa(entry.name, entry.url, entry.isFamily);
       entry.sent = !!sent[entry.name];
 
       const tag = entry.group
@@ -312,7 +312,7 @@
 
   function updateProgress() {
     const sentCount = _entries.filter(e => e.sent).length;
-    const gn = _groupCount ? ` · ${_personalCount} personal · ${_groupCount} grup` : '';
+    const gn = _familyCount || _guestCount ? ` · ${_familyCount} keluarga · ${_guestCount} tamu` : '';
     document.getElementById('count-info').innerHTML =
       `<span class="count-badge">Total: ${_entries.length} undangan${gn}</span>` +
       `<span class="progress-badge">✓ Terkirim: ${sentCount} / ${_entries.length}</span>` +
