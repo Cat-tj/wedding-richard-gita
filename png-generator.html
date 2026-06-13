@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8"/>
+<title>PNG Generator — Richard & Gita</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;1,400&family=Noto+Serif+SC:wght@500;700&family=Inter:wght@300;400&display=swap" rel="stylesheet"/>
+<style>
+  :root{ --red:#9e0f22; --gold:#d4af37; --cream:#fbf4e6; --dark:#6f0a18; }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+
+  body{ font-family:'Inter',sans-serif; background:#1d1012; color:#faf3e6; padding:40px 24px; }
+  h1{ font-family:'Playfair Display',serif; font-size:2rem; color:var(--gold); margin-bottom:8px; }
+  .sub{ font-size:13px; color:rgba(250,248,243,.45); margin-bottom:40px; line-height:1.7; }
+
+  .card{
+    background:rgba(255,255,255,.05); border:1px solid rgba(212,175,55,.2);
+    border-radius:16px; padding:28px; margin-bottom:24px; max-width:860px;
+  }
+  .card h2{ font-size:11px; letter-spacing:.28em; text-transform:uppercase; color:var(--gold); margin-bottom:16px; }
+
+  label{ font-size:11px; letter-spacing:.2em; text-transform:uppercase; color:rgba(212,175,55,.6); display:block; margin-bottom:8px; }
+  textarea{
+    width:100%; padding:12px 16px; background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.1);
+    border-radius:10px; color:#faf8f3; font-family:'Inter',sans-serif; font-size:14px; outline:none;
+    resize:vertical; min-height:140px;
+  }
+  textarea:focus{ border-color:var(--gold); }
+
+  .hint{ font-size:12px; color:rgba(250,248,243,.35); margin-top:8px; line-height:1.6; }
+
+  button{
+    padding:12px 32px; background:linear-gradient(135deg,#8b1c24,#c8202f);
+    color:#faf8f3; border:none; border-radius:10px;
+    font-family:'Inter',sans-serif; font-size:13px; font-weight:600; letter-spacing:.14em;
+    text-transform:uppercase; cursor:pointer; margin-top:20px; transition:all .25s ease;
+  }
+  button:hover{ transform:translateY(-2px); box-shadow:0 8px 24px rgba(200,32,47,.4); }
+
+  #output{ display:none; background:rgba(255,255,255,.05); border:1px solid rgba(212,175,55,.2);
+    border-radius:16px; padding:28px; margin-top:24px; max-width:860px; }
+  .output-header{ margin-bottom:16px; }
+  .output-header h2{ font-size:11px; letter-spacing:.28em; text-transform:uppercase; color:var(--gold); }
+
+  .gen-item{
+    display:flex; align-items:center; gap:16px; padding:14px; background:rgba(255,255,255,.04);
+    border:1px solid rgba(255,255,255,.07); border-radius:10px; margin-bottom:12px;
+  }
+  .gen-name{ flex:1; font-size:13px; font-weight:500; color:#faf8f3; }
+  .gen-btn{
+    padding:6px 18px; font-size:11px; letter-spacing:.1em; text-transform:uppercase;
+    background:rgba(212,175,55,.12); border:1px solid rgba(212,175,55,.25); border-radius:20px;
+    color:var(--gold); cursor:pointer; white-space:nowrap; transition:all .2s;
+  }
+  .gen-btn:hover{ background:rgba(212,175,55,.25); }
+  .gen-btn.done{ background:rgba(37,211,102,.15); border-color:rgba(37,211,102,.3); color:#25d366; }
+
+  .hidden{ position:absolute; left:-9999px; width:1px; height:1px; overflow:hidden; }
+</style>
+</head>
+<body>
+
+<h1>🖼 PNG Generator</h1>
+<p class="sub">Buat undangan per guest dalam format PNG. Setiap tamu mendapat kartu dengan nama mereka sendiri. Pilih antara <strong>Keluarga (dengan Tea Pai)</strong> atau <strong>Tamu Undangan (tanpa Tea Pai)</strong>.</p>
+
+<div class="card">
+  <h2>Pengaturan</h2>
+  <div style="margin-bottom:20px">
+    <label>Keluarga (dengan Tea Pai · 1 nama per baris)</label>
+    <textarea id="family-list" placeholder="Keluarga Ibu Kasmah&#10;Keluarga Ibu Lusiana&#10;..."></textarea>
+    <p class="hint">👨‍👩‍👧‍👦 Setiap nama akan mendapat kartu dengan schedule Tea Pai.</p>
+  </div>
+  <div style="margin-bottom:20px">
+    <label>Tamu Undangan (tanpa Tea Pai · 1 nama per baris)</label>
+    <textarea id="guest-list" placeholder="Budi Santoso&#10;Siti Rahayu&#10;..."></textarea>
+    <p class="hint">✦ Setiap nama akan mendapat kartu dengan schedule Resepsi only.</p>
+  </div>
+  <button onclick="generate()">✦ Generate PNG</button>
+</div>
+
+<div id="output" class="card">
+  <div class="output-header">
+    <h2>Undangan PNG Siap Download</h2>
+  </div>
+  <div id="gen-list"></div>
+</div>
+
+<!-- Hidden print area -->
+<div class="hidden" id="print-area"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+
+<script>
+const SITE = 'https://wedding-richard-gita.vercel.app/';
+const FAMILY_SCHEDULE = 'Tea Pai: Minggu, 28 Juni 2026 · 09.00 – 11.00 WITA<br>Resepsi: Minggu, 28 Juni 2026 · 11.00 – 15.00 WITA';
+const GUEST_SCHEDULE = 'Resepsi: Minggu, 28 Juni 2026 · 11.00 – 15.00 WITA';
+
+function readLines(id) {
+  return document.getElementById(id).value.trim().split('\n').map(n => n.trim()).filter(Boolean);
+}
+
+function buildCard(name, isFamily) {
+  const url = `${SITE}?to=${encodeURIComponent(name)}`;
+  const schedule = isFamily ? FAMILY_SCHEDULE : GUEST_SCHEDULE;
+  const eventLabel = isFamily ? 'Tea Pai & Resepsi' : 'Resepsi';
+
+  return `
+  <div class="sheet" style="width:148mm;height:210mm;position:relative;overflow:hidden;background:radial-gradient(120% 80% at 50% 0%,#a81226 0%,#8e0f22 50%,#6f0a18 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24mm 18mm;text-align:center;color:#fbf4e6;font-family:'Inter',sans-serif;box-sizing:border-box;">
+    <div style="border:1px solid rgba(212,175,55,.55);position:absolute;inset:7mm;pointer-events:none;z-index:4;"></div>
+    <div style="border:.5px solid rgba(212,175,55,.25);position:absolute;inset:9.5mm;pointer-events:none;z-index:4;"></div>
+
+    <div style="position:relative;z-index:6;display:flex;flex-direction:column;align-items:center;">
+      <div style="font-size:10.5pt;color:#d4af37;letter-spacing:.22em;margin-bottom:7mm;">UNDANGAN PERNIKAHAN</div>
+      <div style="font-family:'Playfair Display',serif;font-weight:600;font-size:30pt;line-height:1.05;color:#fff;">Richard<span style="display:block;font-style:italic;font-weight:400;font-size:16pt;color:#d4af37;margin:1mm 0;">&amp;</span>Gita</div>
+      <div style="font-family:'Noto Serif SC',serif;font-size:10.5pt;color:#d4af37;letter-spacing:.22em;margin-top:4mm;">张文兴 · 甘美花</div>
+      <div style="width:44mm;height:1px;background:linear-gradient(90deg,transparent,#d4af37,transparent);margin:9mm auto;"></div>
+      <div style="font-size:8pt;letter-spacing:.24em;text-transform:uppercase;color:rgba(251,244,230,.75);margin-bottom:3mm;">Kepada Yth.</div>
+      <div style="font-family:'Playfair Display',serif;font-size:13pt;color:#fff;border-bottom:.5px solid rgba(212,175,55,.45);min-width:86mm;padding:0 6mm 2.5mm;display:inline-block;margin-bottom:8mm;">${name}</div>
+      <div style="font-size:8pt;color:rgba(251,244,230,.75);line-height:1.6;max-width:90mm;">
+        <strong style="color:#d4af37;">${eventLabel}</strong><br>
+        Jumat, 26 Juni 2026 — Akad & Acara Adat<br><br>
+        ${schedule}<br><br>
+        📍 Samarinda & Balikpapan, Indonesia
+      </div>
+      <div id="qr-${name.replace(/\s+/g, '-')}" style="margin-top:8mm;"></div>
+    </div>
+  </div>
+  `;
+}
+
+async function generatePNG(name, isFamily) {
+  const html = buildCard(name, isFamily);
+  const area = document.getElementById('print-area');
+  area.innerHTML = html;
+
+  const sheet = area.querySelector('.sheet');
+
+  // Generate QR
+  const qrDiv = sheet.querySelector(`[id^="qr-"]`);
+  try {
+    new QRCode(qrDiv, { text: `${SITE}?to=${encodeURIComponent(name)}`, width: 200, height: 200, colorDark: '#1d1012', colorLight: '#ffffff' });
+  } catch (e) {}
+
+  // Convert to PNG
+  const canvas = await html2canvas(sheet, { scale: 2, backgroundColor: null });
+  return canvas.toDataURL('image/png');
+}
+
+async function generate() {
+  const family = readLines('family-list');
+  const guests = readLines('guest-list');
+  const all = [...family.map(n => ({name: n, isFamily: true})), ...guests.map(n => ({name: n, isFamily: false}))];
+
+  if (!all.length) { alert('Masukkan minimal 1 nama!'); return; }
+
+  const output = document.getElementById('output');
+  const list = document.getElementById('gen-list');
+  list.innerHTML = '';
+  output.style.display = 'block';
+
+  for (const entry of all) {
+    const item = document.createElement('div');
+    item.className = 'gen-item';
+    item.innerHTML = `<div class="gen-name">${entry.name}</div><button class="gen-btn" onclick="download('${entry.name}', ${entry.isFamily})">Download PNG</button>`;
+    list.appendChild(item);
+  }
+}
+
+async function download(name, isFamily) {
+  const btn = event.target;
+  btn.disabled = true;
+  btn.textContent = 'Loading...';
+
+  try {
+    const png = await generatePNG(name, isFamily);
+    const a = document.createElement('a');
+    a.href = png;
+    a.download = `undangan-${name.replace(/\s+/g, '-')}.png`;
+    a.click();
+
+    btn.className = 'gen-btn done';
+    btn.textContent = '✓ Downloaded';
+    setTimeout(() => {
+      btn.className = 'gen-btn';
+      btn.textContent = 'Download PNG';
+      btn.disabled = false;
+    }, 3000);
+  } catch (e) {
+    alert('Error: ' + e.message);
+    btn.disabled = false;
+    btn.textContent = 'Download PNG';
+  }
+}
+</script>
+
+</body>
+</html>
