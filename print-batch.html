@@ -123,10 +123,7 @@
 
   <div class="controls">
     <h1>Batch Undangan Cetak</h1>
-    <p class="sub">Tiap tamu = 2 halaman (depan personal + belakang detail), siap cetak <b>bolak-balik</b>. Klik Generate lalu Cetak/Simpan PDF.</p>
-
-    <label>URL Website (untuk QR personal)</label>
-    <input type="url" id="base-url" value="https://wedding-richard-gita.vercel.app/" />
+    <p class="sub">Tiap tamu = 2 halaman (depan personal + belakang detail), siap cetak <b>bolak-balik</b>. Klik Generate lalu Cetak/Simpan PDF, atau download semua sebagai PNG.</p>
 
     <div class="row2">
       <div>
@@ -144,6 +141,7 @@
     <div class="btns">
       <button class="btn" onclick="generate()">✦ Generate Kartu</button>
       <button class="btn gold" id="print-btn" onclick="window.print()" disabled>🖨 Cetak / Simpan PDF</button>
+      <button class="btn" id="png-btn" onclick="downloadAllPng(this)" disabled>🖼 Simpan Semua PNG</button>
       <span class="count" id="count"></span>
     </div>
     <p class="hint">Save as PDF: <b>Paper A5</b>, <b>Margins None</b>, <b>Scale 100</b>, centang <b>Background graphics</b>. Cetak bolak-balik: <b>Print on both sides / Flip on long edge</b>. Urutan halaman: depan-belakang tiap tamu.</p>
@@ -151,7 +149,7 @@
 
   <div id="pages"></div>
 
-<script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script>
   function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
   function readLines(id){ return document.getElementById(id).value.trim().split('\n').map(s=>s.trim()).filter(Boolean); }
@@ -177,7 +175,6 @@
   }
 
   function backPage(name, isFamily){
-    const url = document.getElementById('base-url').value.trim().replace(/\?.*$/, '') + '?to=' + encodeURIComponent(name);
     const teaPaiHtml = isFamily ? `<div class="event"><h3>Tea Pai</h3>
               <div class="e-line"><span class="e-strong">Minggu, 28 Juni 2026 · 09.00 – 11.00 WITA</span>
                 <span class="e-strong">Nusantara Grand Ballroom</span>
@@ -213,7 +210,6 @@
                 <span class="e-strong">Nusantara Grand Ballroom</span>
                 Hotel MaxOne, Jl. MT Haryono No.2, Balikpapan</div></div>
           </div>
-          <div class="footer"><div class="qr" data-url="${esc(url)}"></div><span class="qr-cap">Scan · Undangan Digital</span></div>
         </div>
       </div>
     </div></div></div>`;
@@ -229,16 +225,33 @@
     document.getElementById('pages').innerHTML =
       entries.map(e => coverPage(e.name, e.isFamily) + backPage(e.name, e.isFamily)).join('');
 
-    document.querySelectorAll('.qr').forEach(el=>{
-      const u = el.dataset.url;
-      try{ new QRCode(el,{text:u,width:200,height:200,colorDark:'#1d1012',colorLight:'#fff',correctLevel:QRCode.CorrectLevel.M}); }
-      catch(err){ el.innerHTML = '<img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data='+encodeURIComponent(u)+'">'; }
-    });
-
     const fc = readLines('family-list').length, gc = readLines('guest-list').length;
     document.getElementById('count').textContent = entries.length + ' tamu · ' + (entries.length*2) + ' halaman' + (fc||gc? ` (${fc} keluarga · ${gc} tamu)`:'');
     document.getElementById('print-btn').disabled = false;
+    document.getElementById('png-btn').disabled = false;
     document.getElementById('pages').scrollIntoView({behavior:'smooth'});
+  }
+
+  async function downloadAllPng(btn){
+    const pages = document.querySelectorAll('.page .sheet');
+    if(!pages.length){ alert('Generate kartu dulu!'); return; }
+
+    const orig = btn.textContent;
+    btn.disabled = true; btn.style.opacity = '.6';
+    try{
+      for(let i=0;i<pages.length;i++){
+        btn.textContent = `🖼 Membuat ${i+1}/${pages.length}...`;
+        const canvas = await html2canvas(pages[i], {
+          scale: 3, useCORS: true, allowTaint: false, backgroundColor: '#6f0a18'
+        });
+        const link = document.createElement('a');
+        link.href = canvas.toDataURL('image/png');
+        link.download = `undangan-halaman-${String(i+1).padStart(2,'0')}.png`;
+        link.click();
+        await new Promise(r=>setTimeout(r,400));
+      }
+    }catch(e){ alert('Gagal membuat PNG: ' + e.message); }
+    finally{ btn.textContent = orig; btn.disabled = false; btn.style.opacity = ''; }
   }
 </script>
 
