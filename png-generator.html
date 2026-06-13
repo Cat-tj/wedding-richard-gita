@@ -61,7 +61,7 @@
 <body>
 
 <h1>🖼 PNG Generator</h1>
-<p class="sub">Download undangan per guest sebagai file PNG. Setiap tamu mendapat kartu dengan nama mereka + QR code personal.</p>
+<p class="sub">Download undangan per guest sebagai 2 halaman PNG (depan + belakang). Setiap tamu mendapat kartu dengan nama mereka + QR code personal.</p>
 
 <div class="card">
   <h2>Pengaturan</h2>
@@ -85,10 +85,7 @@
   <div id="gen-list"></div>
 </div>
 
-<!-- Hidden canvas area -->
 <canvas id="canvas" class="hidden" width="1480" height="2100"></canvas>
-
-<script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
 
 <script>
 const SITE = 'https://wedding-richard-gita.vercel.app/';
@@ -97,7 +94,7 @@ function readLines(id) {
   return document.getElementById(id).value.trim().split('\n').map(n => n.trim()).filter(Boolean);
 }
 
-function drawCard(ctx, name, isFamily) {
+function drawFrontPage(ctx, name, isFamily) {
   const w = 1480, h = 2100;
   const pad = 80;
 
@@ -168,13 +165,81 @@ function drawCard(ctx, name, isFamily) {
   ctx.font = '24px "Inter"';
   ctx.fillStyle = 'rgba(251,244,230,0.7)';
   ctx.fillText('📍 Samarinda & Balikpapan, Indonesia', w/2, y + 100);
+}
 
-  // QR placeholder (ditulis sebagai text dulu, baru generate real QR)
+function drawBackPage(ctx, name) {
+  const w = 1480, h = 2100;
+  const pad = 80;
+
+  // Background gradient
+  const grad = ctx.createLinearGradient(0, 0, 0, h);
+  grad.addColorStop(0, '#a81226');
+  grad.addColorStop(0.5, '#8e0f22');
+  grad.addColorStop(1, '#6f0a18');
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, w, h);
+
+  // Frame borders
+  ctx.strokeStyle = 'rgba(212,175,55,0.55)';
+  ctx.lineWidth = 2;
+  ctx.strokeRect(pad, pad, w - 2*pad, h - 2*pad);
+
+  ctx.fillStyle = '#fbf4e6';
+  ctx.textAlign = 'center';
+
+  // Title
+  ctx.font = 'bold 32px "Inter"';
+  ctx.fillStyle = 'rgba(212,175,55,0.8)';
+  ctx.fillText('THE WEDDING OF', w/2, 250);
+
+  // Names
+  ctx.font = 'bold 80px "Playfair Display"';
+  ctx.fillStyle = '#ffffff';
+  ctx.fillText('Richard', w/2, 420);
+  ctx.font = 'italic 48px "Playfair Display"';
+  ctx.fillStyle = '#d4af37';
+  ctx.fillText('&', w/2, 510);
+  ctx.font = 'bold 80px "Playfair Display"';
+  ctx.fillStyle = '#ffffff';
+  ctx.fillText('Gita', w/2, 600);
+
+  // Chinese names
+  ctx.font = '28px "Noto Serif SC"';
+  ctx.fillStyle = '#d4af37';
+  ctx.fillText('张文兴 · 甘美花', w/2, 680);
+
+  // Invitation text
+  ctx.font = '24px "Inter"';
+  ctx.fillStyle = 'rgba(251,244,230,0.85)';
+  ctx.textAlign = 'center';
+  const intro = `Dengan memohon rahmat Tuhan Yang Maha Esa,\nkami mengundang Bapak/Ibu/Saudara/i\nuntuk hadir & memberikan doa restu.`;
+  let y = 850;
+  intro.split('\n').forEach(line => {
+    ctx.fillText(line, w/2, y);
+    y += 40;
+  });
+
+  // Parents section
+  ctx.font = 'bold 22px "Inter"';
+  ctx.fillStyle = 'rgba(212,175,55,0.8)';
+  y = 1150;
+  ctx.fillText('MEMPELAI PRIA', w/2, y);
   ctx.font = '20px "Inter"';
+  ctx.fillStyle = 'rgba(251,244,230,0.85)';
+  ctx.fillText('Putra dari Bp. Jack Chandra Wijaya 张振强 & Ibu Kasmah', w/2, y + 50);
+
+  y = 1300;
+  ctx.font = 'bold 22px "Inter"';
+  ctx.fillStyle = 'rgba(212,175,55,0.8)';
+  ctx.fillText('MEMPELAI WANITA', w/2, y);
+  ctx.font = '20px "Inter"';
+  ctx.fillStyle = 'rgba(251,244,230,0.85)';
+  ctx.fillText('Putri dari Bp. Alm. Andry Martin 甘坤同 & Ibu Lusiana', w/2, y + 50);
+
+  // QR placeholder
+  ctx.font = '18px "Inter"';
   ctx.fillStyle = 'rgba(212,175,55,0.6)';
   ctx.fillText('[ QR Code akan ditambahkan ]', w/2, h - 150);
-
-  return canvas.toDataURL('image/png');
 }
 
 function generate() {
@@ -189,13 +254,10 @@ function generate() {
   list.innerHTML = '';
   output.style.display = 'block';
 
-  const canvas = document.getElementById('canvas');
-  const ctx = canvas.getContext('2d');
-
   all.forEach(entry => {
     const item = document.createElement('div');
     item.className = 'gen-item';
-    item.innerHTML = `<div class="gen-name">${entry.name}</div><button class="gen-btn" onclick="downloadPNG('${entry.name}', ${entry.isFamily})">Download PNG</button>`;
+    item.innerHTML = `<div class="gen-name">${entry.name}</div><button class="gen-btn" onclick="downloadPNG('${entry.name}', ${entry.isFamily})">Download 2 Pages</button>`;
     list.appendChild(item);
   });
 }
@@ -203,15 +265,29 @@ function generate() {
 function downloadPNG(name, isFamily) {
   const canvas = document.getElementById('canvas');
   const ctx = canvas.getContext('2d');
+
+  // Page 1 - Front
   ctx.clearRect(0, 0, canvas.width, canvas.height);
+  drawFrontPage(ctx, name, isFamily);
+  const page1 = canvas.toDataURL('image/png');
 
-  drawCard(ctx, name, isFamily);
+  // Page 2 - Back
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  drawBackPage(ctx, name);
+  const page2 = canvas.toDataURL('image/png');
 
-  const png = canvas.toDataURL('image/png');
-  const a = document.createElement('a');
-  a.href = png;
-  a.download = `undangan-${name.replace(/\s+/g, '-')}.png`;
-  a.click();
+  // Download both
+  const downloadImg = (data, filename) => {
+    const a = document.createElement('a');
+    a.href = data;
+    a.download = filename;
+    a.click();
+  };
+
+  downloadImg(page1, `undangan-${name.replace(/\s+/g, '-')}-halaman-1.png`);
+  setTimeout(() => {
+    downloadImg(page2, `undangan-${name.replace(/\s+/g, '-')}-halaman-2.png`);
+  }, 500);
 }
 </script>
 
