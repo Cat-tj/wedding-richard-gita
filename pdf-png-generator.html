@@ -52,7 +52,7 @@
   .gen-btn.pdf{ background:rgba(156,15,34,.12); border-color:rgba(156,15,34,.25); color:#ff6b7a; }
   .gen-btn.pdf:hover{ background:rgba(156,15,34,.25); }
 
-  .hidden-pages{ display:none; }
+  .hidden-pages{ position:absolute; left:-9999px; top:0; }
 
   /* INVITATION STYLES */
   .page{ width:148mm; height:210mm; position:relative; overflow:hidden; page-break-after:always;
@@ -177,7 +177,7 @@
   <div class="hidden-pages" id="hidden-pages"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.2/dist/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
 <script>
@@ -286,7 +286,7 @@
     document.getElementById('count').textContent = all.length + ' undangan siap download';
   }
 
-  function downloadPDF(name) {
+  async function downloadPDF(name) {
     const pages = document.querySelectorAll('.page');
     let pdfPages = [];
 
@@ -302,21 +302,24 @@
       return;
     }
 
-    // Create container with both pages
-    const container = document.createElement('div');
-    pdfPages.forEach(page => {
-      container.appendChild(page.cloneNode(true));
-    });
+    // A5 dimensions in mm
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a5', compress: true });
+    const pageW = 148, pageH = 210;
 
-    const opt = {
-      margin: 0,
-      filename: `undangan-${name.replace(/\s+/g, '-')}.pdf`,
-      image: { type: 'jpeg', quality: 0.98 },
-      html2canvas: { scale: 2 },
-      jsPDF: { format: 'a5', orientation: 'portrait', compress: true }
-    };
+    for (let i = 0; i < pdfPages.length; i++) {
+      const canvas = await html2canvas(pdfPages[i], {
+        scale: 3,
+        useCORS: true,
+        allowTaint: false,
+        backgroundColor: '#6f0a18'
+      });
+      const imgData = canvas.toDataURL('image/jpeg', 0.95);
+      if (i > 0) pdf.addPage('a5', 'portrait');
+      pdf.addImage(imgData, 'JPEG', 0, 0, pageW, pageH);
+    }
 
-    html2pdf().set(opt).from(container).save();
+    pdf.save(`undangan-${name.replace(/\s+/g, '-')}.pdf`);
   }
 
   async function downloadPNG(name) {
@@ -338,8 +341,10 @@
     // Download each page as PNG
     for (let i = 0; i < pdfPages.length; i++) {
       const canvas = await html2canvas(pdfPages[i], {
-        scale: 2,
-        backgroundColor: null
+        scale: 3,
+        useCORS: true,
+        allowTaint: false,
+        backgroundColor: '#6f0a18'
       });
 
       const link = document.createElement('a');

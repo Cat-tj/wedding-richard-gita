@@ -188,15 +188,15 @@
       <label>URL Website Undangan</label>
       <input type="url" id="base-url" value="https://wedding-richard-gita.vercel.app/" placeholder="https://wedding-richard-gita.vercel.app/" />
     </div>
-    <div style=”margin-bottom:20px”>
+    <div style="margin-bottom:20px">
       <label>Keluarga (dengan Tea Pai 09.00–11.00 · 1 nama per baris)</label>
-      <textarea id=”family-list” placeholder=”Keluarga Ibu Kasmah&#10;Keluarga Ibu Lusiana&#10;Close relatives&#10;...”></textarea>
-      <p class=”hint”>👨‍👩‍👧‍👦 Keluarga besar yang dapat jadwal Tea Pai. Disapa: “Kepada Yth. [Nama Keluarga/Grup]”.</p>
+      <textarea id="family-list" placeholder="Keluarga Ibu Kasmah&#10;Keluarga Ibu Lusiana&#10;Close relatives&#10;..."></textarea>
+      <p class="hint">👨‍👩‍👧‍👦 Keluarga besar yang dapat jadwal Tea Pai. Disapa: "Kepada Yth. [Nama Keluarga/Grup]".</p>
     </div>
     <div>
       <label>Tamu Undangan (hanya Resepsi 11.00–15.00 · 1 nama per baris)</label>
-      <textarea id=”guest-list” placeholder=”Budi Santoso&#10;Siti Rahayu&#10;Ahmad Fauzi&#10;...”></textarea>
-      <p class=”hint”>✦ Tamu undangan biasa tanpa Tea Pai. Disapa: “Kepada Yth. Bapak/Ibu/Saudara/i [Nama]”.</p>
+      <textarea id="guest-list" placeholder="Budi Santoso&#10;Siti Rahayu&#10;Ahmad Fauzi&#10;..."></textarea>
+      <p class="hint">✦ Tamu undangan biasa tanpa Tea Pai. Disapa: "Kepada Yth. Bapak/Ibu/Saudara/i [Nama]".</p>
     </div>
     <button onclick="generate()">✦ Generate Links</button>
   </div>
@@ -258,8 +258,8 @@
       entry.wa   = buildWa(entry.name, entry.url, entry.isFamily);
       entry.sent = !!sent[entry.name];
 
-      const tag = entry.group
-        ? `<span style="font-size:9px;letter-spacing:.1em;text-transform:uppercase;padding:2px 8px;border-radius:20px;background:rgba(212,175,55,.18);color:#d4af37;margin-left:8px;">Grup</span>`
+      const tag = entry.isFamily
+        ? `<span style="font-size:9px;letter-spacing:.1em;text-transform:uppercase;padding:2px 8px;border-radius:20px;background:rgba(212,175,55,.18);color:#d4af37;margin-left:8px;">Keluarga</span>`
         : '';
 
       const row = document.createElement('div');
@@ -336,7 +336,7 @@
 
   function copyAll() {
     const baseUrl = document.getElementById('base-url').value.trim().replace(/\?.*$/, '');
-    const names = [...readLines('guest-list'), ...readLines('group-list')];
+    const names = [...readLines('family-list'), ...readLines('guest-list')];
     const lines = names.map(n => `${n}\t${baseUrl}?to=${encodeURIComponent(n)}`).join('\n');
     navigator.clipboard.writeText(lines).then(() => {
       const btn = document.querySelector('.copy-all');
