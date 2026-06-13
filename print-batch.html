@@ -75,9 +75,9 @@
   /* BELAKANG — 2 kolom */
   .card{ display:flex; height:100%; }
   .photo-col{ flex:0 0 58mm; position:relative; overflow:hidden; background:#6f0a18; }
-  .photo-col::before{ content:''; position:absolute; inset:0; z-index:0;
-    background:url('assets/print-couple.jpg') center/cover no-repeat; filter:blur(7px) brightness(.5) saturate(1.1); transform:scale(1.15); }
-  .photo-col img{ position:relative; z-index:1; width:100%; height:100%; object-fit:cover; object-position:50% 20%; transform:scale(1.03); transform-origin:50% 20%; display:block; }
+  .photo-col .photo-bg{ position:absolute; inset:0; z-index:0; width:100%; height:100%;
+    object-fit:cover; object-position:center; filter:blur(7px) brightness(.5) saturate(1.1); transform:scale(1.15); display:block; }
+  .photo-col .photo-main{ position:relative; z-index:1; width:100%; height:100%; object-fit:cover; object-position:50% 20%; transform:scale(1.03); transform-origin:50% 20%; display:block; }
   .photo-col::after{ content:''; position:absolute; inset:0; z-index:2; pointer-events:none;
     box-shadow: inset -2px 0 0 rgba(212,175,55,.9);
     background:linear-gradient(90deg, rgba(0,0,0,.18), transparent 16%, transparent 86%, rgba(110,10,24,.35)); }
@@ -180,7 +180,7 @@
                 <span class="e-strong">Nusantara Grand Ballroom</span>
                 Hotel MaxOne, Jl. MT Haryono No.2, Balikpapan</div></div>` : '';
     return `<div class="page"><div class="sheet"><div class="card">
-      <div class="photo-col"><img src="assets/print-couple.jpg" alt=""></div>
+      <div class="photo-col"><img class="photo-bg" src="assets/print-couple.jpg" alt=""><img class="photo-main" src="assets/print-couple.jpg" alt=""></div>
       <div class="content-col">
         <div class="frame-in"></div>
         <span class="corner tl"></span><span class="corner tr"></span>
