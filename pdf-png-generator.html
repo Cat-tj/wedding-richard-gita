@@ -272,11 +272,12 @@
       const item = document.createElement('div');
       item.className = 'gen-item';
       const safeName = entry.name.replace(/\s+/g, '-').toLowerCase();
+      const safe = entry.name.replace(/'/g, "\\'");
       item.innerHTML = `
         <div class="gen-name">${entry.name}</div>
         <div class="gen-btns">
-          <button class="gen-btn pdf" onclick="downloadPDF('${entry.name.replace(/'/g, "\\'")}')">📄 PDF</button>
-          <button class="gen-btn" onclick="downloadPNG('${entry.name.replace(/'/g, "\\'")}')">🖼 PNG</button>
+          <button class="gen-btn pdf" onclick="downloadPDF('${safe}', this)">📄 PDF</button>
+          <button class="gen-btn" onclick="downloadPNG('${safe}', this)">🖼 PNG</button>
         </div>
       `;
       list.appendChild(item);
@@ -286,75 +287,75 @@
     document.getElementById('count').textContent = all.length + ' undangan siap download';
   }
 
-  async function downloadPDF(name) {
-    const pages = document.querySelectorAll('.page');
-    let pdfPages = [];
-
-    pages.forEach(page => {
+  function findPages(name) {
+    const out = [];
+    document.querySelectorAll('.page').forEach(page => {
       const text = page.querySelector('.cover-to .nm, .to b');
-      if (text && text.textContent.trim() === name) {
-        pdfPages.push(page);
-      }
+      if (text && text.textContent.trim() === name) out.push(page);
     });
-
-    if (pdfPages.length === 0) {
-      alert('Halaman tidak ditemukan');
-      return;
-    }
-
-    // A5 dimensions in mm
-    const { jsPDF } = window.jspdf;
-    const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a5', compress: true });
-    const pageW = 148, pageH = 210;
-
-    for (let i = 0; i < pdfPages.length; i++) {
-      const canvas = await html2canvas(pdfPages[i], {
-        scale: 3,
-        useCORS: true,
-        allowTaint: false,
-        backgroundColor: '#6f0a18'
-      });
-      const imgData = canvas.toDataURL('image/jpeg', 0.95);
-      if (i > 0) pdf.addPage('a5', 'portrait');
-      pdf.addImage(imgData, 'JPEG', 0, 0, pageW, pageH);
-    }
-
-    pdf.save(`undangan-${name.replace(/\s+/g, '-')}.pdf`);
+    return out;
   }
 
-  async function downloadPNG(name) {
-    const pages = document.querySelectorAll('.page');
-    let pdfPages = [];
-
-    pages.forEach(page => {
-      const text = page.querySelector('.cover-to .nm, .to b');
-      if (text && text.textContent.trim() === name) {
-        pdfPages.push(page);
-      }
-    });
-
-    if (pdfPages.length === 0) {
-      alert('Halaman tidak ditemukan');
-      return;
+  function setBtnBusy(btn, busy, busyLabel) {
+    if (!btn) return;
+    if (busy) {
+      btn.dataset.label = btn.textContent;
+      btn.textContent = busyLabel;
+      btn.disabled = true;
+      btn.style.opacity = '.6';
+    } else {
+      btn.textContent = btn.dataset.label || btn.textContent;
+      btn.disabled = false;
+      btn.style.opacity = '';
     }
+  }
 
-    // Download each page as PNG
-    for (let i = 0; i < pdfPages.length; i++) {
-      const canvas = await html2canvas(pdfPages[i], {
-        scale: 3,
-        useCORS: true,
-        allowTaint: false,
-        backgroundColor: '#6f0a18'
-      });
+  async function downloadPDF(name, btn) {
+    const pdfPages = findPages(name);
+    if (pdfPages.length === 0) { alert('Halaman tidak ditemukan'); return; }
 
-      const link = document.createElement('a');
-      link.href = canvas.toDataURL('image/png');
-      link.download = `undangan-${name.replace(/\s+/g, '-')}-halaman-${i+1}.png`;
-      link.click();
+    setBtnBusy(btn, true, '⏳ Membuat...');
+    try {
+      const { jsPDF } = window.jspdf;
+      const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a5', compress: true });
+      const pageW = 148, pageH = 210;
 
-      if (i < pdfPages.length - 1) {
-        await new Promise(resolve => setTimeout(resolve, 500));
+      for (let i = 0; i < pdfPages.length; i++) {
+        const canvas = await html2canvas(pdfPages[i], {
+          scale: 3, useCORS: true, allowTaint: false, backgroundColor: '#6f0a18'
+        });
+        const imgData = canvas.toDataURL('image/jpeg', 0.95);
+        if (i > 0) pdf.addPage('a5', 'portrait');
+        pdf.addImage(imgData, 'JPEG', 0, 0, pageW, pageH);
       }
+      pdf.save(`undangan-${name.replace(/\s+/g, '-')}.pdf`);
+    } catch (e) {
+      alert('Gagal membuat PDF: ' + e.message);
+    } finally {
+      setBtnBusy(btn, false);
+    }
+  }
+
+  async function downloadPNG(name, btn) {
+    const pdfPages = findPages(name);
+    if (pdfPages.length === 0) { alert('Halaman tidak ditemukan'); return; }
+
+    setBtnBusy(btn, true, '⏳ Membuat...');
+    try {
+      for (let i = 0; i < pdfPages.length; i++) {
+        const canvas = await html2canvas(pdfPages[i], {
+          scale: 3, useCORS: true, allowTaint: false, backgroundColor: '#6f0a18'
+        });
+        const link = document.createElement('a');
+        link.href = canvas.toDataURL('image/png');
+        link.download = `undangan-${name.replace(/\s+/g, '-')}-halaman-${i+1}.png`;
+        link.click();
+        if (i < pdfPages.length - 1) await new Promise(r => setTimeout(r, 500));
+      }
+    } catch (e) {
+      alert('Gagal membuat PNG: ' + e.message);
+    } finally {
+      setBtnBusy(btn, false);
     }
   }
 </script>
