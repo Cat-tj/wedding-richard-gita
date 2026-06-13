@@ -76,7 +76,7 @@
   .card{ display:flex; height:100%; }
   .photo-col{ flex:0 0 58mm; position:relative; overflow:hidden; background:#6f0a18; }
   .photo-col::before{ content:''; position:absolute; inset:0; z-index:0;
-    background:url('assets/print-couple.jpg') center/cover; filter:blur(7px) brightness(.5) saturate(1.1); transform:scale(1.15); }
+    background:url('assets/print-couple.jpg') center/cover no-repeat; filter:blur(7px) brightness(.5) saturate(1.1); transform:scale(1.15); }
   .photo-col img{ position:relative; z-index:1; width:100%; height:100%; object-fit:cover; object-position:50% 20%; transform:scale(1.03); transform-origin:50% 20%; display:block; }
   .photo-col::after{ content:''; position:absolute; inset:0; z-index:2; pointer-events:none;
     box-shadow: inset -2px 0 0 rgba(212,175,55,.9);
@@ -232,6 +232,26 @@
     document.getElementById('pages').scrollIntoView({behavior:'smooth'});
   }
 
+  // Wait until every image (incl. CSS background) is fully loaded & decoded.
+  // html2canvas builds 0-size canvases from not-yet-loaded images → createPattern crash.
+  function loadOne(src){
+    return new Promise(res=>{
+      const im = new Image();
+      im.onload = ()=>res(true);
+      im.onerror = ()=>res(false);
+      im.src = src;
+      if(im.complete) res(true);
+    });
+  }
+  async function waitForImages(root){
+    const imgs = [...root.querySelectorAll('img')];
+    await Promise.all(imgs.map(im => (im.complete && im.naturalWidth)
+      ? Promise.resolve()
+      : new Promise(res=>{ im.onload=res; im.onerror=res; })));
+    // CSS background image used by .photo-col::before
+    await loadOne('assets/print-couple.jpg');
+  }
+
   async function downloadAllPng(btn){
     const pages = document.querySelectorAll('.page .sheet');
     if(!pages.length){ alert('Generate kartu dulu!'); return; }
@@ -239,6 +259,8 @@
     const orig = btn.textContent;
     btn.disabled = true; btn.style.opacity = '.6';
     try{
+      btn.textContent = '🖼 Memuat gambar...';
+      await waitForImages(document.getElementById('pages'));
       for(let i=0;i<pages.length;i++){
         btn.textContent = `🖼 Membuat ${i+1}/${pages.length}...`;
         const canvas = await html2canvas(pages[i], {
