@@ -35,6 +35,7 @@
     text-transform:uppercase; cursor:pointer; margin-top:20px; transition:all .25s ease;
   }
   button:hover{ transform:translateY(-2px); box-shadow:0 8px 24px rgba(200,32,47,.4); }
+  button:disabled{ opacity:.5; cursor:not-allowed; }
 
   #output{ display:none; background:rgba(255,255,255,.05); border:1px solid rgba(212,175,55,.2);
     border-radius:16px; padding:28px; margin-top:24px; max-width:860px; }
@@ -60,19 +61,19 @@
 <body>
 
 <h1>🖼 PNG Generator</h1>
-<p class="sub">Buat undangan per guest dalam format PNG. Setiap tamu mendapat kartu dengan nama mereka sendiri. Pilih antara <strong>Keluarga (dengan Tea Pai)</strong> atau <strong>Tamu Undangan (tanpa Tea Pai)</strong>.</p>
+<p class="sub">Download undangan per guest sebagai file PNG. Setiap tamu mendapat kartu dengan nama mereka + QR code personal.</p>
 
 <div class="card">
   <h2>Pengaturan</h2>
   <div style="margin-bottom:20px">
     <label>Keluarga (dengan Tea Pai · 1 nama per baris)</label>
     <textarea id="family-list" placeholder="Keluarga Ibu Kasmah&#10;Keluarga Ibu Lusiana&#10;..."></textarea>
-    <p class="hint">👨‍👩‍👧‍👦 Setiap nama akan mendapat kartu dengan schedule Tea Pai.</p>
+    <p class="hint">👨‍👩‍👧‍👦 Schedule: Tea Pai 09.00–11.00 + Resepsi 11.00–15.00</p>
   </div>
   <div style="margin-bottom:20px">
     <label>Tamu Undangan (tanpa Tea Pai · 1 nama per baris)</label>
     <textarea id="guest-list" placeholder="Budi Santoso&#10;Siti Rahayu&#10;..."></textarea>
-    <p class="hint">✦ Setiap nama akan mendapat kartu dengan schedule Resepsi only.</p>
+    <p class="hint">✦ Schedule: Resepsi 11.00–15.00 only</p>
   </div>
   <button onclick="generate()">✦ Generate PNG</button>
 </div>
@@ -84,69 +85,99 @@
   <div id="gen-list"></div>
 </div>
 
-<!-- Hidden print area -->
-<div class="hidden" id="print-area"></div>
+<!-- Hidden canvas area -->
+<canvas id="canvas" class="hidden" width="1480" height="2100"></canvas>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
 
 <script>
 const SITE = 'https://wedding-richard-gita.vercel.app/';
-const FAMILY_SCHEDULE = 'Tea Pai: Minggu, 28 Juni 2026 · 09.00 – 11.00 WITA<br>Resepsi: Minggu, 28 Juni 2026 · 11.00 – 15.00 WITA';
-const GUEST_SCHEDULE = 'Resepsi: Minggu, 28 Juni 2026 · 11.00 – 15.00 WITA';
 
 function readLines(id) {
   return document.getElementById(id).value.trim().split('\n').map(n => n.trim()).filter(Boolean);
 }
 
-function buildCard(name, isFamily) {
-  const url = `${SITE}?to=${encodeURIComponent(name)}`;
-  const schedule = isFamily ? FAMILY_SCHEDULE : GUEST_SCHEDULE;
-  const eventLabel = isFamily ? 'Tea Pai & Resepsi' : 'Resepsi';
+function drawCard(ctx, name, isFamily) {
+  const w = 1480, h = 2100;
+  const pad = 80;
 
-  return `
-  <div class="sheet" style="width:148mm;height:210mm;position:relative;overflow:hidden;background:radial-gradient(120% 80% at 50% 0%,#a81226 0%,#8e0f22 50%,#6f0a18 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24mm 18mm;text-align:center;color:#fbf4e6;font-family:'Inter',sans-serif;box-sizing:border-box;">
-    <div style="border:1px solid rgba(212,175,55,.55);position:absolute;inset:7mm;pointer-events:none;z-index:4;"></div>
-    <div style="border:.5px solid rgba(212,175,55,.25);position:absolute;inset:9.5mm;pointer-events:none;z-index:4;"></div>
+  // Background gradient
+  const grad = ctx.createLinearGradient(0, 0, 0, h);
+  grad.addColorStop(0, '#a81226');
+  grad.addColorStop(0.5, '#8e0f22');
+  grad.addColorStop(1, '#6f0a18');
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, w, h);
 
-    <div style="position:relative;z-index:6;display:flex;flex-direction:column;align-items:center;">
-      <div style="font-size:10.5pt;color:#d4af37;letter-spacing:.22em;margin-bottom:7mm;">UNDANGAN PERNIKAHAN</div>
-      <div style="font-family:'Playfair Display',serif;font-weight:600;font-size:30pt;line-height:1.05;color:#fff;">Richard<span style="display:block;font-style:italic;font-weight:400;font-size:16pt;color:#d4af37;margin:1mm 0;">&amp;</span>Gita</div>
-      <div style="font-family:'Noto Serif SC',serif;font-size:10.5pt;color:#d4af37;letter-spacing:.22em;margin-top:4mm;">张文兴 · 甘美花</div>
-      <div style="width:44mm;height:1px;background:linear-gradient(90deg,transparent,#d4af37,transparent);margin:9mm auto;"></div>
-      <div style="font-size:8pt;letter-spacing:.24em;text-transform:uppercase;color:rgba(251,244,230,.75);margin-bottom:3mm;">Kepada Yth.</div>
-      <div style="font-family:'Playfair Display',serif;font-size:13pt;color:#fff;border-bottom:.5px solid rgba(212,175,55,.45);min-width:86mm;padding:0 6mm 2.5mm;display:inline-block;margin-bottom:8mm;">${name}</div>
-      <div style="font-size:8pt;color:rgba(251,244,230,.75);line-height:1.6;max-width:90mm;">
-        <strong style="color:#d4af37;">${eventLabel}</strong><br>
-        Jumat, 26 Juni 2026 — Akad & Acara Adat<br><br>
-        ${schedule}<br><br>
-        📍 Samarinda & Balikpapan, Indonesia
-      </div>
-      <div id="qr-${name.replace(/\s+/g, '-')}" style="margin-top:8mm;"></div>
-    </div>
-  </div>
-  `;
-}
+  // Frame borders
+  ctx.strokeStyle = 'rgba(212,175,55,0.55)';
+  ctx.lineWidth = 2;
+  ctx.strokeRect(pad, pad, w - 2*pad, h - 2*pad);
 
-async function generatePNG(name, isFamily) {
-  const html = buildCard(name, isFamily);
-  const area = document.getElementById('print-area');
-  area.innerHTML = html;
+  ctx.fillStyle = '#fbf4e6';
+  ctx.textAlign = 'center';
 
-  const sheet = area.querySelector('.sheet');
+  // Title
+  ctx.font = 'bold 32px "Inter"';
+  ctx.fillStyle = 'rgba(212,175,55,0.8)';
+  ctx.fillText('UNDANGAN PERNIKAHAN', w/2, 250);
 
-  // Generate QR
-  const qrDiv = sheet.querySelector(`[id^="qr-"]`);
-  try {
-    new QRCode(qrDiv, { text: `${SITE}?to=${encodeURIComponent(name)}`, width: 200, height: 200, colorDark: '#1d1012', colorLight: '#ffffff' });
-  } catch (e) {}
+  // Names
+  ctx.font = 'bold 96px "Playfair Display"';
+  ctx.fillStyle = '#ffffff';
+  ctx.fillText('Richard', w/2, 450);
+  ctx.font = 'italic 48px "Playfair Display"';
+  ctx.fillStyle = '#d4af37';
+  ctx.fillText('&', w/2, 550);
+  ctx.font = 'bold 96px "Playfair Display"';
+  ctx.fillStyle = '#ffffff';
+  ctx.fillText('Gita', w/2, 650);
 
-  // Convert to PNG
-  const canvas = await html2canvas(sheet, { scale: 2, backgroundColor: null });
+  // Chinese names
+  ctx.font = '32px "Noto Serif SC"';
+  ctx.fillStyle = '#d4af37';
+  ctx.fillText('张文兴 · 甘美花', w/2, 750);
+
+  // Divider line
+  ctx.strokeStyle = 'rgba(212,175,55,0.6)';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(w/2 - 200, 850);
+  ctx.lineTo(w/2 + 200, 850);
+  ctx.stroke();
+
+  // Guest name
+  ctx.font = 'bold 48px "Playfair Display"';
+  ctx.fillStyle = '#ffffff';
+  ctx.fillText(name, w/2, 1000);
+
+  // Schedule
+  ctx.font = '28px "Inter"';
+  ctx.fillStyle = 'rgba(251,244,230,0.85)';
+  const schedule = isFamily
+    ? 'Tea Pai: 09.00 – 11.00 WITA\nResepsi: 11.00 – 15.00 WITA'
+    : 'Resepsi: 11.00 – 15.00 WITA';
+  const lines = schedule.split('\n');
+  let y = 1150;
+  lines.forEach(line => {
+    ctx.fillText(line, w/2, y);
+    y += 50;
+  });
+
+  // Location
+  ctx.font = '24px "Inter"';
+  ctx.fillStyle = 'rgba(251,244,230,0.7)';
+  ctx.fillText('📍 Samarinda & Balikpapan, Indonesia', w/2, y + 100);
+
+  // QR placeholder (ditulis sebagai text dulu, baru generate real QR)
+  ctx.font = '20px "Inter"';
+  ctx.fillStyle = 'rgba(212,175,55,0.6)';
+  ctx.fillText('[ QR Code akan ditambahkan ]', w/2, h - 150);
+
   return canvas.toDataURL('image/png');
 }
 
-async function generate() {
+function generate() {
   const family = readLines('family-list');
   const guests = readLines('guest-list');
   const all = [...family.map(n => ({name: n, isFamily: true})), ...guests.map(n => ({name: n, isFamily: false}))];
@@ -158,38 +189,29 @@ async function generate() {
   list.innerHTML = '';
   output.style.display = 'block';
 
-  for (const entry of all) {
+  const canvas = document.getElementById('canvas');
+  const ctx = canvas.getContext('2d');
+
+  all.forEach(entry => {
     const item = document.createElement('div');
     item.className = 'gen-item';
-    item.innerHTML = `<div class="gen-name">${entry.name}</div><button class="gen-btn" onclick="download('${entry.name}', ${entry.isFamily})">Download PNG</button>`;
+    item.innerHTML = `<div class="gen-name">${entry.name}</div><button class="gen-btn" onclick="downloadPNG('${entry.name}', ${entry.isFamily})">Download PNG</button>`;
     list.appendChild(item);
-  }
+  });
 }
 
-async function download(name, isFamily) {
-  const btn = event.target;
-  btn.disabled = true;
-  btn.textContent = 'Loading...';
+function downloadPNG(name, isFamily) {
+  const canvas = document.getElementById('canvas');
+  const ctx = canvas.getContext('2d');
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-  try {
-    const png = await generatePNG(name, isFamily);
-    const a = document.createElement('a');
-    a.href = png;
-    a.download = `undangan-${name.replace(/\s+/g, '-')}.png`;
-    a.click();
+  drawCard(ctx, name, isFamily);
 
-    btn.className = 'gen-btn done';
-    btn.textContent = '✓ Downloaded';
-    setTimeout(() => {
-      btn.className = 'gen-btn';
-      btn.textContent = 'Download PNG';
-      btn.disabled = false;
-    }, 3000);
-  } catch (e) {
-    alert('Error: ' + e.message);
-    btn.disabled = false;
-    btn.textContent = 'Download PNG';
-  }
+  const png = canvas.toDataURL('image/png');
+  const a = document.createElement('a');
+  a.href = png;
+  a.download = `undangan-${name.replace(/\s+/g, '-')}.png`;
+  a.click();
 }
 </script>
 
