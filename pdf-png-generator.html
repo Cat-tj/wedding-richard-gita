@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Batch Undangan Cetak — Richard &amp; Gita</title>
+<title>PDF/PNG Generator — Richard & Gita</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,500;0,600;1,400;1,500&family=Noto+Serif+SC:wght@500;700&display=swap" rel="stylesheet" />
 <style>
   :root{ --red:#9e0f22; --red2:#c8202f; --gold:#d4af37; --cream:#fbf4e6; }
@@ -32,10 +32,32 @@
   .count{ font-size:13px; color:var(--gold); }
   .hint{ font-size:12px; color:rgba(250,243,230,.4); margin-top:6px; line-height:1.6; }
 
-  .page{ margin:0 auto 26px; }
-  .sheet{ width:148mm; height:210mm; position:relative; overflow:hidden;
-    box-shadow:0 24px 60px rgba(0,0,0,.5);
+  #output{ display:none; background:rgba(255,255,255,.05); border:1px solid rgba(212,175,55,.2);
+    border-radius:16px; padding:28px; margin-top:24px; max-width:760px; }
+  .output-header{ margin-bottom:20px; }
+  .output-header h2{ font-size:11px; letter-spacing:.28em; text-transform:uppercase; color:var(--gold); }
+
+  .gen-item{
+    display:flex; align-items:center; justify-content:space-between; gap:16px; padding:14px;
+    background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.07); border-radius:10px; margin-bottom:12px;
+  }
+  .gen-name{ flex:1; font-size:13px; font-weight:500; color:#faf8f3; }
+  .gen-btns{ display:flex; gap:8px; }
+  .gen-btn{
+    padding:6px 14px; font-size:10px; letter-spacing:.08em; text-transform:uppercase;
+    background:rgba(212,175,55,.12); border:1px solid rgba(212,175,55,.25); border-radius:20px;
+    color:var(--gold); cursor:pointer; white-space:nowrap; transition:all .2s;
+  }
+  .gen-btn:hover{ background:rgba(212,175,55,.25); }
+  .gen-btn.pdf{ background:rgba(156,15,34,.12); border-color:rgba(156,15,34,.25); color:#ff6b7a; }
+  .gen-btn.pdf:hover{ background:rgba(156,15,34,.25); }
+
+  .hidden-pages{ display:none; }
+
+  /* INVITATION STYLES */
+  .page{ width:148mm; height:210mm; position:relative; overflow:hidden; page-break-after:always;
     background:radial-gradient(130% 90% at 70% -10%, #b3122b 0%, #8e0f22 55%, #6f0a18 100%); }
+  .sheet{ width:100%; height:100%; position:relative; overflow:hidden; }
   .frame::before{ content:''; position:absolute; inset:5mm; border:1px solid rgba(212,175,55,.55); pointer-events:none; z-index:3; }
   .corner{position:absolute; width:9mm; height:9mm; border:1.5px solid var(--gold); pointer-events:none; z-index:3;}
   .corner.tl{top:6.4mm;left:6.4mm;border-right:0;border-bottom:0;}
@@ -52,7 +74,7 @@
     border:1px solid rgba(122,90,0,.6); box-shadow:0 2mm 5mm rgba(0,0,0,.35); }
 
   /* COVER */
-  .cover{ display:flex; flex-direction:column; align-items:center; text-align:center; color:var(--cream); }
+  .cover{ display:flex; flex-direction:column; align-items:center; text-align:center; color:var(--cream); height:100%; }
   .cover-photo{ width:100%; height:98mm; position:relative; flex:0 0 98mm; overflow:hidden; }
   .cover-photo img{ width:100%; height:100%; object-fit:cover; object-position:51.3% 4.4%;
     transform:scale(1.85); transform-origin:51.3% 4.4%; display:block; }
@@ -67,12 +89,11 @@
   .cover-han{ font-family:'Noto Serif SC',serif; font-size:11pt; color:var(--gold); letter-spacing:.2em; margin-top:2.5mm; }
   .cover-date{ font-size:8.5pt; letter-spacing:.18em; text-transform:uppercase; color:var(--cream); margin-top:3mm; }
   .cover-rule{ width:40mm; height:1px; background:linear-gradient(90deg,transparent,var(--gold),transparent); margin:4mm 0; }
-  .cover-invite{ font-size:8.4pt; line-height:1.6; color:rgba(251,244,230,.88); max-width:110mm; }
   .cover-to{ margin-top:auto; padding-top:6mm; }
   .cover-to .yth{ font-size:7pt; letter-spacing:.24em; text-transform:uppercase; color:var(--gold); }
   .cover-to .nm{ font-family:'Playfair Display',serif; font-size:13pt; color:#fff; margin-top:1mm; }
 
-  /* BELAKANG — 2 kolom */
+  /* BACK — 2 kolom */
   .card{ display:flex; height:100%; }
   .photo-col{ flex:0 0 58mm; position:relative; overflow:hidden; background:#6f0a18; }
   .photo-col::before{ content:''; position:absolute; inset:0; z-index:0;
@@ -112,8 +133,7 @@
   @media print{
     html,body{ margin:0; padding:0; background:#6f0a18; display:block; }
     .controls{ display:none; }
-    .page{ margin:0; page-break-after:always; }
-    .page:last-child{ page-break-after:auto; }
+    .page{ margin:0; }
     .sheet{ box-shadow:none; }
     *{ -webkit-print-color-adjust:exact !important; print-color-adjust:exact !important; }
   }
@@ -122,8 +142,8 @@
 <body>
 
   <div class="controls">
-    <h1>Batch Undangan Cetak</h1>
-    <p class="sub">Tiap tamu = 2 halaman (depan personal + belakang detail), siap cetak <b>bolak-balik</b>. Klik Generate lalu Cetak/Simpan PDF.</p>
+    <h1>PDF/PNG Generator</h1>
+    <p class="sub">Generate undangan per guest (2 halaman) dan download sebagai <b>PDF atau PNG</b>.</p>
 
     <label>URL Website (untuk QR personal)</label>
     <input type="url" id="base-url" value="https://wedding-richard-gita.vercel.app/" />
@@ -142,16 +162,24 @@
     </div>
 
     <div class="btns">
-      <button class="btn" onclick="generate()">✦ Generate Kartu</button>
-      <button class="btn gold" id="print-btn" onclick="window.print()" disabled>🖨 Cetak / Simpan PDF</button>
+      <button class="btn" onclick="generate()">✦ Generate Undangan</button>
       <span class="count" id="count"></span>
     </div>
-    <p class="hint">Save as PDF: <b>Paper A5</b>, <b>Margins None</b>, <b>Scale 100</b>, centang <b>Background graphics</b>. Cetak bolak-balik: <b>Print on both sides / Flip on long edge</b>. Urutan halaman: depan-belakang tiap tamu.</p>
   </div>
 
-  <div id="pages"></div>
+  <div id="output" class="card">
+    <div class="output-header">
+      <h2>Download Undangan (PDF atau PNG)</h2>
+    </div>
+    <div id="gen-list"></div>
+  </div>
+
+  <div class="hidden-pages" id="hidden-pages"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
 <script>
   function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
   function readLines(id){ return document.getElementById(id).value.trim().split('\n').map(s=>s.trim()).filter(Boolean); }
@@ -166,7 +194,7 @@
       <div class="cover-body">
         <div class="crest"><img class="dragon left" src="assets/dragon.png" alt=""><div class="xi-badge">囍</div><img class="dragon right" src="assets/dragon.png" alt=""></div>
         <p class="cover-label">Undangan Pernikahan</p>
-        <p class="cover-quote">“Dua insan yang dipersatukan oleh cinta dan restu,<br>melangkah bersama menuju satu kehidupan yang utuh.”</p>
+        <p class="cover-quote">"Dua insan yang dipersatukan oleh cinta dan restu,<br>melangkah bersama menuju satu kehidupan yang utuh."</p>
         <div class="cover-names">Richard<span class="amp">&amp;</span>Gita</div>
         <div class="cover-han">张文兴 · 甘美花</div>
         <p class="cover-date">26 &amp; 28 Juni 2026 · Samarinda &amp; Balikpapan</p>
@@ -220,25 +248,109 @@
   }
 
   function generate(){
-    const entries = [
-      ...readLines('family-list').map(n=>({name:n,isFamily:true})),
-      ...readLines('guest-list').map(n=>({name:n,isFamily:false})),
-    ];
-    if(!entries.length){ alert('Masukkan minimal 1 nama tamu atau keluarga!'); return; }
+    const family = readLines('family-list');
+    const guests = readLines('guest-list');
+    const all = [...family.map(n => ({name:n, isFamily:true})), ...guests.map(n => ({name:n, isFamily:false}))];
 
-    document.getElementById('pages').innerHTML =
-      entries.map(e => coverPage(e.name, e.isFamily) + backPage(e.name, e.isFamily)).join('');
+    if(!all.length){ alert('Masukkan minimal 1 nama tamu atau keluarga!'); return; }
 
+    // Generate hidden HTML pages
+    const pagesHtml = all.map(e => coverPage(e.name, e.isFamily) + backPage(e.name, e.isFamily)).join('');
+    document.getElementById('hidden-pages').innerHTML = pagesHtml;
+
+    // Generate QR codes
     document.querySelectorAll('.qr').forEach(el=>{
       const u = el.dataset.url;
       try{ new QRCode(el,{text:u,width:200,height:200,colorDark:'#1d1012',colorLight:'#fff',correctLevel:QRCode.CorrectLevel.M}); }
       catch(err){ el.innerHTML = '<img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data='+encodeURIComponent(u)+'">'; }
     });
 
-    const fc = readLines('family-list').length, gc = readLines('guest-list').length;
-    document.getElementById('count').textContent = entries.length + ' tamu · ' + (entries.length*2) + ' halaman' + (fc||gc? ` (${fc} keluarga · ${gc} tamu)`:'');
-    document.getElementById('print-btn').disabled = false;
-    document.getElementById('pages').scrollIntoView({behavior:'smooth'});
+    // Generate output list
+    const list = document.getElementById('gen-list');
+    list.innerHTML = '';
+    all.forEach(entry => {
+      const item = document.createElement('div');
+      item.className = 'gen-item';
+      const safeName = entry.name.replace(/\s+/g, '-').toLowerCase();
+      item.innerHTML = `
+        <div class="gen-name">${entry.name}</div>
+        <div class="gen-btns">
+          <button class="gen-btn pdf" onclick="downloadPDF('${entry.name.replace(/'/g, "\\'")}')">📄 PDF</button>
+          <button class="gen-btn" onclick="downloadPNG('${entry.name.replace(/'/g, "\\'")}')">🖼 PNG</button>
+        </div>
+      `;
+      list.appendChild(item);
+    });
+
+    document.getElementById('output').style.display = 'block';
+    document.getElementById('count').textContent = all.length + ' undangan siap download';
+  }
+
+  function downloadPDF(name) {
+    const pages = document.querySelectorAll('.page');
+    let pdfPages = [];
+
+    pages.forEach(page => {
+      const text = page.querySelector('.cover-to .nm, .to b');
+      if (text && text.textContent.trim() === name) {
+        pdfPages.push(page);
+      }
+    });
+
+    if (pdfPages.length === 0) {
+      alert('Halaman tidak ditemukan');
+      return;
+    }
+
+    // Create container with both pages
+    const container = document.createElement('div');
+    pdfPages.forEach(page => {
+      container.appendChild(page.cloneNode(true));
+    });
+
+    const opt = {
+      margin: 0,
+      filename: `undangan-${name.replace(/\s+/g, '-')}.pdf`,
+      image: { type: 'jpeg', quality: 0.98 },
+      html2canvas: { scale: 2 },
+      jsPDF: { format: 'a5', orientation: 'portrait', compress: true }
+    };
+
+    html2pdf().set(opt).from(container).save();
+  }
+
+  async function downloadPNG(name) {
+    const pages = document.querySelectorAll('.page');
+    let pdfPages = [];
+
+    pages.forEach(page => {
+      const text = page.querySelector('.cover-to .nm, .to b');
+      if (text && text.textContent.trim() === name) {
+        pdfPages.push(page);
+      }
+    });
+
+    if (pdfPages.length === 0) {
+      alert('Halaman tidak ditemukan');
+      return;
+    }
+
+    // Download each page as PNG
+    for (let i = 0; i < pdfPages.length; i++) {
+      const canvas = await html2canvas(pdfPages[i], {
+        scale: 2,
+        backgroundColor: null
+      });
+
+      const link = document.createElement('a');
+      link.href = canvas.toDataURL('image/png');
+      link.download = `undangan-${name.replace(/\s+/g, '-')}-halaman-${i+1}.png`;
+      link.click();
+
+      if (i < pdfPages.length - 1) {
+        await new Promise(resolve => setTimeout(resolve, 500));
+      }
+    }
   }
 </script>
 

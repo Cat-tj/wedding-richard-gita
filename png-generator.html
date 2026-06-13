@@ -100,7 +100,7 @@ function drawFrontPage(ctx, name, isFamily) {
 
   // Background gradient
   const grad = ctx.createLinearGradient(0, 0, 0, h);
-  grad.addColorStop(0, '#a81226');
+  grad.addColorStop(0, '#b3122b');
   grad.addColorStop(0.5, '#8e0f22');
   grad.addColorStop(1, '#6f0a18');
   ctx.fillStyle = grad;
@@ -108,72 +108,135 @@ function drawFrontPage(ctx, name, isFamily) {
 
   // Frame borders
   ctx.strokeStyle = 'rgba(212,175,55,0.55)';
-  ctx.lineWidth = 2;
+  ctx.lineWidth = 3;
   ctx.strokeRect(pad, pad, w - 2*pad, h - 2*pad);
 
-  ctx.fillStyle = '#fbf4e6';
-  ctx.textAlign = 'center';
-
-  // Title
-  ctx.font = 'bold 32px "Inter"';
-  ctx.fillStyle = 'rgba(212,175,55,0.8)';
-  ctx.fillText('UNDANGAN PERNIKAHAN', w/2, 250);
-
-  // Names
-  ctx.font = 'bold 96px "Playfair Display"';
-  ctx.fillStyle = '#ffffff';
-  ctx.fillText('Richard', w/2, 450);
-  ctx.font = 'italic 48px "Playfair Display"';
-  ctx.fillStyle = '#d4af37';
-  ctx.fillText('&', w/2, 550);
-  ctx.font = 'bold 96px "Playfair Display"';
-  ctx.fillStyle = '#ffffff';
-  ctx.fillText('Gita', w/2, 650);
-
-  // Chinese names
-  ctx.font = '32px "Noto Serif SC"';
-  ctx.fillStyle = '#d4af37';
-  ctx.fillText('张文兴 · 甘美花', w/2, 750);
-
-  // Divider line
-  ctx.strokeStyle = 'rgba(212,175,55,0.6)';
-  ctx.lineWidth = 1;
+  // Corner brackets (simplified as small L-shapes)
+  ctx.strokeStyle = 'rgba(212,175,55,0.9)';
+  ctx.lineWidth = 2.5;
+  const cornerSize = 30;
+  // Top-left
   ctx.beginPath();
-  ctx.moveTo(w/2 - 200, 850);
-  ctx.lineTo(w/2 + 200, 850);
+  ctx.moveTo(pad+5, pad+cornerSize+5);
+  ctx.lineTo(pad+5, pad+5);
+  ctx.lineTo(pad+cornerSize+5, pad+5);
+  ctx.stroke();
+  // Top-right
+  ctx.beginPath();
+  ctx.moveTo(w-pad-cornerSize-5, pad+5);
+  ctx.lineTo(w-pad-5, pad+5);
+  ctx.lineTo(w-pad-5, pad+cornerSize+5);
+  ctx.stroke();
+  // Bottom-left
+  ctx.beginPath();
+  ctx.moveTo(pad+5, h-pad-cornerSize-5);
+  ctx.lineTo(pad+5, h-pad-5);
+  ctx.lineTo(pad+cornerSize+5, h-pad-5);
+  ctx.stroke();
+  // Bottom-right
+  ctx.beginPath();
+  ctx.moveTo(w-pad-cornerSize-5, h-pad-5);
+  ctx.lineTo(w-pad-5, h-pad-5);
+  ctx.lineTo(w-pad-5, h-pad-cornerSize-5);
   ctx.stroke();
 
-  // Guest name
-  ctx.font = 'bold 48px "Playfair Display"';
-  ctx.fillStyle = '#ffffff';
-  ctx.fillText(name, w/2, 1000);
+  ctx.textAlign = 'center';
+  ctx.fillStyle = '#fbf4e6';
 
-  // Schedule
-  ctx.font = '28px "Inter"';
-  ctx.fillStyle = 'rgba(251,244,230,0.85)';
+  // Label
+  ctx.font = 'bold 26px "Inter"';
+  ctx.fillStyle = 'rgba(212,175,55,0.8)';
+  ctx.fillText('Undangan Pernikahan', w/2, 200);
+
+  // Quote
+  ctx.font = 'italic 24px "Playfair Display"';
+  ctx.fillStyle = 'rgba(251,244,230,0.75)';
+  const quote = '"Dua insan yang dipersatukan oleh cinta\ndan restu, melangkah bersama menuju\nsatu kehidupan yang utuh."';
+  let y = 290;
+  quote.split('\n').forEach(line => {
+    ctx.fillText(line, w/2, y);
+    y += 45;
+  });
+
+  // Divider line
+  ctx.strokeStyle = 'rgba(212,175,55,0.5)';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(w/2 - 250, 500);
+  ctx.lineTo(w/2 + 250, 500);
+  ctx.stroke();
+
+  // Names
+  ctx.font = 'bold 110px "Playfair Display"';
+  ctx.fillStyle = '#ffffff';
+  ctx.fillText('Richard', w/2, 680);
+
+  ctx.font = 'italic 60px "Playfair Display"';
+  ctx.fillStyle = '#d4af37';
+  ctx.fillText('&', w/2, 800);
+
+  ctx.font = 'bold 110px "Playfair Display"';
+  ctx.fillStyle = '#ffffff';
+  ctx.fillText('Gita', w/2, 950);
+
+  // Chinese names
+  ctx.font = 'bold 36px "Noto Serif SC"';
+  ctx.fillStyle = '#d4af37';
+  ctx.fillText('张文兴 · 甘美花', w/2, 1050);
+
+  // Date & Location
+  ctx.font = '24px "Inter"';
+  ctx.fillStyle = 'rgba(251,244,230,0.8)';
+  ctx.fillText('26 & 28 Juni 2026', w/2, 1130);
+  ctx.fillText('Samarinda & Balikpapan, Indonesia', w/2, 1180);
+
+  // Divider line
+  ctx.strokeStyle = 'rgba(212,175,55,0.5)';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(w/2 - 250, 1260);
+  ctx.lineTo(w/2 + 250, 1260);
+  ctx.stroke();
+
+  // Guest label & name
+  ctx.font = 'bold 20px "Inter"';
+  ctx.fillStyle = '#d4af37';
+  ctx.textAlign = 'center';
+  ctx.fillText('KEPADA YTH.', w/2, 1350);
+
+  ctx.font = 'bold 60px "Playfair Display"';
+  ctx.fillStyle = '#ffffff';
+  ctx.fillText(name, w/2, 1480);
+
+  // Schedule section
+  ctx.font = 'bold 22px "Inter"';
+  ctx.fillStyle = '#d4af37';
+  ctx.fillText('ACARA', w/2, 1600);
+
+  ctx.font = '26px "Inter"';
+  ctx.fillStyle = 'rgba(251,244,230,0.9)';
   const schedule = isFamily
     ? 'Tea Pai: 09.00 – 11.00 WITA\nResepsi: 11.00 – 15.00 WITA'
     : 'Resepsi: 11.00 – 15.00 WITA';
-  const lines = schedule.split('\n');
-  let y = 1150;
-  lines.forEach(line => {
+  y = 1680;
+  schedule.split('\n').forEach(line => {
     ctx.fillText(line, w/2, y);
     y += 50;
   });
 
-  // Location
-  ctx.font = '24px "Inter"';
-  ctx.fillStyle = 'rgba(251,244,230,0.7)';
-  ctx.fillText('📍 Samarinda & Balikpapan, Indonesia', w/2, y + 100);
+  ctx.font = '22px "Inter"';
+  ctx.fillStyle = 'rgba(251,244,230,0.75)';
+  ctx.fillText('Minggu, 28 Juni 2026', w/2, y + 30);
 }
 
-function drawBackPage(ctx, name) {
+function drawBackPage(ctx, name, isFamily) {
   const w = 1480, h = 2100;
   const pad = 80;
+  const colW = 860; // Left column width (photo area)
 
   // Background gradient
   const grad = ctx.createLinearGradient(0, 0, 0, h);
-  grad.addColorStop(0, '#a81226');
+  grad.addColorStop(0, '#b3122b');
   grad.addColorStop(0.5, '#8e0f22');
   grad.addColorStop(1, '#6f0a18');
   ctx.fillStyle = grad;
@@ -181,65 +244,147 @@ function drawBackPage(ctx, name) {
 
   // Frame borders
   ctx.strokeStyle = 'rgba(212,175,55,0.55)';
-  ctx.lineWidth = 2;
+  ctx.lineWidth = 3;
   ctx.strokeRect(pad, pad, w - 2*pad, h - 2*pad);
 
-  ctx.fillStyle = '#fbf4e6';
+  // Corner brackets
+  ctx.strokeStyle = 'rgba(212,175,55,0.9)';
+  ctx.lineWidth = 2.5;
+  const cornerSize = 30;
+  ctx.beginPath();
+  ctx.moveTo(pad+5, pad+cornerSize+5);
+  ctx.lineTo(pad+5, pad+5);
+  ctx.lineTo(pad+cornerSize+5, pad+5);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(w-pad-cornerSize-5, pad+5);
+  ctx.lineTo(w-pad-5, pad+5);
+  ctx.lineTo(w-pad-5, pad+cornerSize+5);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(pad+5, h-pad-cornerSize-5);
+  ctx.lineTo(pad+5, h-pad-5);
+  ctx.lineTo(pad+cornerSize+5, h-pad-5);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(w-pad-cornerSize-5, h-pad-5);
+  ctx.lineTo(w-pad-5, h-pad-5);
+  ctx.lineTo(w-pad-5, h-pad-cornerSize-5);
+  ctx.stroke();
+
+  // LEFT COLUMN - Photo placeholder
+  ctx.fillStyle = 'rgba(0,0,0,0.3)';
+  ctx.fillRect(pad+20, pad+20, 430, h - 2*pad - 40);
+
+  // RIGHT COLUMN - Content
+  const contentX = pad + 480;
   ctx.textAlign = 'center';
+  ctx.fillStyle = '#fbf4e6';
 
   // Title
-  ctx.font = 'bold 32px "Inter"';
+  ctx.font = 'bold 24px "Inter"';
   ctx.fillStyle = 'rgba(212,175,55,0.8)';
-  ctx.fillText('THE WEDDING OF', w/2, 250);
+  ctx.fillText('THE WEDDING OF', w/2, 150);
 
-  // Names
-  ctx.font = 'bold 80px "Playfair Display"';
+  // Names (smaller for space)
+  ctx.font = 'bold 70px "Playfair Display"';
   ctx.fillStyle = '#ffffff';
-  ctx.fillText('Richard', w/2, 420);
-  ctx.font = 'italic 48px "Playfair Display"';
+  ctx.fillText('Richard', w/2, 280);
+  ctx.font = 'italic 40px "Playfair Display"';
   ctx.fillStyle = '#d4af37';
-  ctx.fillText('&', w/2, 510);
-  ctx.font = 'bold 80px "Playfair Display"';
+  ctx.fillText('&', w/2, 350);
+  ctx.font = 'bold 70px "Playfair Display"';
   ctx.fillStyle = '#ffffff';
-  ctx.fillText('Gita', w/2, 600);
+  ctx.fillText('Gita', w/2, 430);
 
   // Chinese names
-  ctx.font = '28px "Noto Serif SC"';
+  ctx.font = 'bold 26px "Noto Serif SC"';
   ctx.fillStyle = '#d4af37';
-  ctx.fillText('张文兴 · 甘美花', w/2, 680);
+  ctx.fillText('张文兴 · 甘美花', w/2, 490);
+
+  // Divider line
+  ctx.strokeStyle = 'rgba(212,175,55,0.5)';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(contentX+50, 530);
+  ctx.lineTo(w-pad-50, 530);
+  ctx.stroke();
+
+  // Greeting
+  ctx.font = 'bold 18px "Inter"';
+  ctx.fillStyle = '#d4af37';
+  ctx.fillText('Kepada Yth.', w/2, 600);
+
+  ctx.font = 'bold 32px "Playfair Display"';
+  ctx.fillStyle = '#ffffff';
+  ctx.fillText(name, w/2, 660);
 
   // Invitation text
-  ctx.font = '24px "Inter"';
+  ctx.font = '18px "Inter"';
   ctx.fillStyle = 'rgba(251,244,230,0.85)';
-  ctx.textAlign = 'center';
   const intro = `Dengan memohon rahmat Tuhan Yang Maha Esa,\nkami mengundang Bapak/Ibu/Saudara/i\nuntuk hadir & memberikan doa restu.`;
-  let y = 850;
+  let y = 750;
   intro.split('\n').forEach(line => {
     ctx.fillText(line, w/2, y);
-    y += 40;
+    y += 30;
   });
 
   // Parents section
-  ctx.font = 'bold 22px "Inter"';
-  ctx.fillStyle = 'rgba(212,175,55,0.8)';
-  y = 1150;
+  y = 920;
+  ctx.font = 'bold 16px "Inter"';
+  ctx.fillStyle = '#d4af37';
   ctx.fillText('MEMPELAI PRIA', w/2, y);
-  ctx.font = '20px "Inter"';
+  ctx.font = '15px "Inter"';
   ctx.fillStyle = 'rgba(251,244,230,0.85)';
-  ctx.fillText('Putra dari Bp. Jack Chandra Wijaya 张振强 & Ibu Kasmah', w/2, y + 50);
+  ctx.fillText('Putra dari Bp. Jack Chandra Wijaya (张人强)', w/2, y + 30);
+  ctx.fillText('& Ibu Kasmah', w/2, y + 55);
 
-  y = 1300;
-  ctx.font = 'bold 22px "Inter"';
-  ctx.fillStyle = 'rgba(212,175,55,0.8)';
+  y = 1070;
+  ctx.font = 'bold 16px "Inter"';
+  ctx.fillStyle = '#d4af37';
   ctx.fillText('MEMPELAI WANITA', w/2, y);
-  ctx.font = '20px "Inter"';
+  ctx.font = '15px "Inter"';
   ctx.fillStyle = 'rgba(251,244,230,0.85)';
-  ctx.fillText('Putri dari Bp. Alm. Andry Martin 甘坤同 & Ibu Lusiana', w/2, y + 50);
+  ctx.fillText('Putri dari Bp. Alm. Andry Martin (甘坤同)', w/2, y + 30);
+  ctx.fillText('& Ibu Lusiana', w/2, y + 55);
+
+  // Events section
+  y = 1240;
+  ctx.font = 'bold 18px "Inter"';
+  ctx.fillStyle = '#d4af37';
+  ctx.fillText('ACARA PERNIKAHAN', w/2, y);
+
+  y += 60;
+  ctx.font = 'bold 16px "Inter"';
+  ctx.fillStyle = '#ffffff';
+  ctx.fillText('Akad & Acara Adat', w/2, y);
+  ctx.font = '14px "Inter"';
+  ctx.fillStyle = 'rgba(251,244,230,0.85)';
+  ctx.fillText('Jumat, 26 Juni 2026 · 09.00 – 18.00 WITA', w/2, y + 28);
+
+  if (isFamily) {
+    y += 75;
+    ctx.font = 'bold 16px "Inter"';
+    ctx.fillStyle = '#ffffff';
+    ctx.fillText('Tea Pai', w/2, y);
+    ctx.font = '14px "Inter"';
+    ctx.fillStyle = 'rgba(251,244,230,0.85)';
+    ctx.fillText('Minggu, 28 Juni 2026 · 09.00 – 11.00 WITA', w/2, y + 28);
+  }
+
+  y += 75;
+  ctx.font = 'bold 16px "Inter"';
+  ctx.fillStyle = '#ffffff';
+  ctx.fillText('Resepsi', w/2, y);
+  ctx.font = '14px "Inter"';
+  ctx.fillStyle = 'rgba(251,244,230,0.85)';
+  ctx.fillText('Minggu, 28 Juni 2026 · 11.00 – 15.00 WITA', w/2, y + 28);
 
   // QR placeholder
-  ctx.font = '18px "Inter"';
+  y = h - 200;
+  ctx.font = '14px "Inter"';
   ctx.fillStyle = 'rgba(212,175,55,0.6)';
-  ctx.fillText('[ QR Code akan ditambahkan ]', w/2, h - 150);
+  ctx.fillText('[ QR Code akan ditambahkan ]', w/2, y);
 }
 
 function generate() {
@@ -273,7 +418,7 @@ function downloadPNG(name, isFamily) {
 
   // Page 2 - Back
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-  drawBackPage(ctx, name);
+  drawBackPage(ctx, name, isFamily);
   const page2 = canvas.toDataURL('image/png');
 
   // Download both
