@@ -1,6 +1,6 @@
 /**
  * GOOGLE APPS SCRIPT — Wedding RSVP + Feed Ucapan
- * ─────────────────────────────────────────────────────────────
+ * ──────────────────────────────────────────────────────────────
  * CARA PAKAI:
  * 1. Buka spreadsheet → Extensions → Apps Script (atau script.google.com)
  * 2. Hapus semua kode, paste kode ini, klik 💾 Save
@@ -9,9 +9,13 @@
  *    - Execute as: Me   ·   Who has access: Anyone
  *    URL /exec tetap sama, jadi tidak perlu ubah index.html
  *
- * RSVP & ucapan disimpan di SATU tab: "RSVP"
- *   Kolom: Timestamp | Nama | Kehadiran | Ucapan / Doa
- * Website menampilkan ucapan dari kolom "Ucapan / Doa" (baris yang terisi).
+ * STRUKTUR KOLOM (4 kolom):
+ *   A: Timestamp | B: Nama | C: Kehadiran | D: Ucapan / Doa
+ *
+ * Form kirim: { timestamp, name, message }
+ * - name → kolom B (Nama)
+ * - message → kolom D (Ucapan / Doa)
+ * - kolom C (Kehadiran) dikosongkan (bisa diisi manual nanti)
  */
 
 const SHEET_ID   = '13W81EQfwVg6-_yqrXMH_jtOU12ZBq6CuAEe9kxTGHOU';
@@ -28,12 +32,15 @@ function doPost(e) {
       sheet.appendRow(['Timestamp', 'Nama', 'Kehadiran', 'Ucapan / Doa']);
       styleHeader(sheet, 4);
     }
-    sheet.appendRow([
-      data.timestamp || new Date().toLocaleString('id-ID'),
-      data.name      || '',
-      data.hadir     || '',
-      data.message   || '',
-    ]);
+
+    // Explicit mapping: pastikan message masuk ke kolom D (Ucapan / Doa)
+    const row = [
+      data.timestamp || new Date().toLocaleString('id-ID', {timeZone:'Asia/Makassar'}),
+      data.name      || '',           // kolom B: Nama
+      '',                              // kolom C: Kehadiran (kosongkan)
+      data.message   || '',           // kolom D: Ucapan / Doa
+    ];
+    sheet.appendRow(row);
 
     return json({ status: 'ok' });
   } catch (err) {
@@ -41,7 +48,7 @@ function doPost(e) {
   }
 }
 
-// GET ?action=list → daftar ucapan (baris RSVP yang punya isi "Ucapan / Doa")
+// GET ?action=list → daftar ucapan (kolom D yang terisi)
 function doGet(e) {
   if (e && e.parameter && e.parameter.action === 'list') {
     try {
@@ -52,10 +59,14 @@ function doGet(e) {
         const ncols = sheet.getLastColumn();
         const rows = sheet.getRange(2, 1, sheet.getLastRow() - 1, ncols).getValues();
         rows.forEach(r => {
-          // support both old (5-col) and new (4-col) sheet structure
-          const message = (ncols >= 5 ? r[4] : r[3] || '').toString().trim();
+          // Kolom D (index 3) = Ucapan / Doa
+          const message = (r[3] || '').toString().trim();
           if (message) {
-            out.push({ timestamp: r[0], name: r[1], message: message });
+            out.push({
+              timestamp: r[0],
+              name: r[1],
+              message: message
+            });
           }
         });
       }
