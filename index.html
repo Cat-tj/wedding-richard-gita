@@ -966,9 +966,9 @@
     }
     .wish-list::-webkit-scrollbar { width: 5px; }
     .wish-list::-webkit-scrollbar-thumb { background: var(--gold-dim); border-radius: 4px; }
-    /* mode endless auto-scroll (saat ucapan > 5) */
+    /* mode endless auto-scroll + manual scroll */
     .wish-list.marquee {
-      height: 460px; max-height: 460px; overflow: hidden; padding-right: 0;
+      height: 460px; max-height: 460px; overflow-y: auto; overflow-x: hidden; padding-right: 6px;
       -webkit-mask-image: linear-gradient(180deg, transparent 0, #000 8%, #000 92%, transparent 100%);
               mask-image: linear-gradient(180deg, transparent 0, #000 8%, #000 92%, transparent 100%);
     }
@@ -1345,34 +1345,9 @@
     </div>
 
     <div class="ceremony-grid section-inner">
-      <!-- Akad Nikah -->
-      <div class="ceremony-card glass reveal-l">
-        <span class="ceremony-num">01 — Akad &amp; Adat</span>
-        <h3 class="ceremony-type">Akad &amp; Acara Adat</h3>
-        <div class="ceremony-detail">
-          <div class="c-row">
-            <span class="c-icon">📅</span>
-            <div class="c-text">
-              <strong>Jumat, 26 Juni 2026</strong>
-              09.00 – 18.00 WITA
-            </div>
-          </div>
-          <div class="c-row">
-            <span class="c-icon">📍</span>
-            <div class="c-text">
-              <strong>Kediaman Mempelai Wanita</strong>
-              Jl. Samarinda Sanga-Sanga RT 17,<br>Kel. Bukuan, Kec. Palaran
-            </div>
-          </div>
-        </div>
-        <a class="maps-btn" href="https://maps.app.goo.gl/iaj92DstKgQJm7cVA" target="_blank">
-          <span>📍</span> Lihat Peta
-        </a>
-      </div>
-
       <!-- Tea Pai (khusus keluarga) -->
       <div class="ceremony-card glass reveal" id="teapai-card" style="display:none">
-        <span class="ceremony-num" id="teapai-num">02 — Tea Pai</span>
+        <span class="ceremony-num" id="teapai-num">01 — Tea Pai</span>
         <h3 class="ceremony-type">Tea Pai</h3>
         <div class="ceremony-detail">
           <div class="c-row">
@@ -1881,29 +1856,31 @@
     const pauseTemp = () => {
       _wishPaused = true;
       clearTimeout(_wishScrollTimeout);
-      _wishScrollTimeout = setTimeout(() => { _wishPaused = false; }, 3000);
+      _wishScrollTimeout = setTimeout(() => { _wishPaused = false; }, 4000);
     };
     list.addEventListener('mouseenter', pause);
     list.addEventListener('mouseleave', resume);
     list.addEventListener('touchstart', pause,  { passive: true });
-    list.addEventListener('touchend',   resume);
+    list.addEventListener('touchend',   () => setTimeout(resume, 2000));
     list.addEventListener('wheel', pauseTemp, { passive: true });
+    list.addEventListener('scroll', pauseTemp, { passive: true });
     _wishHoverBound = true;
   }
 
   function _startWishScroll() {
     _stopWishScroll();
     _bindWishHover();
+    const list = document.getElementById('wish-list');
     const track = document.getElementById('wish-track');
-    if (!track) return;
+    if (!track || !list) return;
     _wishPos = 0;
     const speed = isLowEnd ? 0.25 : 0.5; // px per frame
     const tick = () => {
       const half = track.scrollHeight / 2;
       if (half > 0 && !_wishPaused) {
         _wishPos += speed;
-        if (_wishPos >= half) _wishPos -= half;
-        track.style.transform = 'translateY(' + (-_wishPos) + 'px)';
+        if (_wishPos >= half) { _wishPos -= half; list.scrollTop = 0; }
+        list.scrollTop = _wishPos;
       }
       _wishRAF = requestAnimationFrame(tick);
     };
