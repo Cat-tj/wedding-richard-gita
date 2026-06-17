@@ -1870,25 +1870,23 @@
   }
 
   /* ── endless vertical auto-scroll untuk ucapan ── */
-  let _wishRAF = null, _wishPos = 0, _wishPaused = false, _wishHoverBound = false, _wishScrollTimeout = null;
+  let _wishRAF = null, _wishPaused = false, _wishHoverBound = false, _wishScrollTimeout = null;
 
   function _bindWishHover() {
     if (_wishHoverBound) return;
     const list = document.getElementById('wish-list');
     if (!list) return;
     const pause  = () => { _wishPaused = true; };
-    const resume = () => { _wishPaused = false; };
     const pauseTemp = () => {
       _wishPaused = true;
       clearTimeout(_wishScrollTimeout);
-      _wishScrollTimeout = setTimeout(() => { _wishPaused = false; }, 4000);
+      _wishScrollTimeout = setTimeout(() => { _wishPaused = false; }, 2000);
     };
     list.addEventListener('mouseenter', pause);
-    list.addEventListener('mouseleave', resume);
+    list.addEventListener('mouseleave', () => setTimeout(() => { _wishPaused = false; }, 2000));
     list.addEventListener('touchstart', pause,  { passive: true });
-    list.addEventListener('touchend',   () => setTimeout(resume, 2000));
+    list.addEventListener('touchend',   pauseTemp, { passive: true });
     list.addEventListener('wheel', pauseTemp, { passive: true });
-    list.addEventListener('scroll', pauseTemp, { passive: true });
     _wishHoverBound = true;
   }
 
@@ -1898,14 +1896,13 @@
     const list = document.getElementById('wish-list');
     const track = document.getElementById('wish-track');
     if (!track || !list) return;
-    _wishPos = 0;
     const speed = isLowEnd ? 0.25 : 0.5; // px per frame
     const tick = () => {
       const half = track.scrollHeight / 2;
       if (half > 0 && !_wishPaused) {
-        _wishPos += speed;
-        if (_wishPos >= half) { _wishPos -= half; list.scrollTop = 0; }
-        list.scrollTop = _wishPos;
+        list.scrollTop += speed;
+        // seamless loop: when past half, jump back
+        if (list.scrollTop >= half) list.scrollTop -= half;
       }
       _wishRAF = requestAnimationFrame(tick);
     };
@@ -1914,7 +1911,6 @@
 
   function _stopWishScroll() {
     if (_wishRAF) { cancelAnimationFrame(_wishRAF); _wishRAF = null; }
-    _wishPos = 0;
   }
 
   function loadWishes() {
