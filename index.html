@@ -1860,9 +1860,11 @@
     list.classList.toggle('marquee', marquee);
 
     if (marquee) {
-      // duplikat isi untuk loop mulus
-      list.innerHTML = '<div class="wish-track" id="wish-track">' + cards + cards + '</div>';
-      _startWishScroll();
+      // duplikat isi untuk loop mulus — hanya jika cukup banyak
+      const needsDupe = _wishes.length >= 4;
+      const inner = needsDupe ? cards + cards : cards;
+      list.innerHTML = '<div class="wish-track" id="wish-track">' + inner + '</div>';
+      if (needsDupe) _startWishScroll(); else _stopWishScroll();
     } else {
       _stopWishScroll();
       list.innerHTML = '<div class="wish-track">' + cards + '</div>';
