@@ -1404,7 +1404,7 @@
             <span class="c-icon">📅</span>
             <div class="c-text">
               <strong>Minggu, 28 Juni 2026</strong>
-              Resepsi: 11.00 – 15.00 WITA
+              11.00 – 15.00 WITA
             </div>
           </div>
           <div class="c-row">
@@ -1925,7 +1925,17 @@
     if (SHEET_URL === 'PASTE_YOUR_GOOGLE_SCRIPT_URL_HERE') { _wishes = []; renderWishes(); return; }
     fetch(SHEET_URL + '?action=list', { method: 'GET', redirect: 'follow' })
       .then(r => { if (!r.ok) throw new Error(r.status); return r.json(); })
-      .then(d => { _wishes = Array.isArray(d.ucapan) ? d.ucapan.slice().reverse() : []; renderWishes(); })
+      .then(d => {
+        const raw = Array.isArray(d.ucapan) ? d.ucapan.slice().reverse() : [];
+        // dedup by name+message+timestamp
+        const seen = new Set();
+        _wishes = raw.filter(w => {
+          const key = (w.name||'') + '|' + (w.message||'') + '|' + (w.timestamp||'');
+          if (seen.has(key)) return false;
+          seen.add(key); return true;
+        });
+        renderWishes();
+      })
       .catch(err => { console.warn('loadWishes failed:', err); renderWishes(); });
   }
 
